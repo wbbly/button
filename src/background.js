@@ -1,0 +1,187 @@
+/*global chrome*/
+import openSocket from 'socket.io-client';
+
+let socketConnection = null
+
+window.wobblyButton = {
+    user: {
+        token: null
+    },
+    currentTimer: null,
+    userAuth: false,
+    projectList: null,
+    contentTabs: [],
+    wobblyLogin: function(tabID, changeInfo, tab){
+        if (!wobblyButton.userAuth && tab.url.indexOf('wobbly.me') > 0 && changeInfo.status === 'complete'){
+            chrome.tabs.executeScript(tabID, {file: 'content-scripts/wobbly.js'})
+            chrome.tabs.onRemoved.addListener(() => {
+                chrome.tabs.onUpdated.removeListener(wobblyButton.wobblyLogin)
+            })
+        }
+    },
+    tabUpdated: async function (tabID, changeInfo, tab) {
+        if (wobblyButton.userAuth && tab.url.indexOf('j.mng.ninja') > 0 && changeInfo.status === 'complete'){
+            if(wobblyButton.contentTabs.indexOf(tabID) < 0){
+                wobblyButton.contentTabs.push(tabID)
+            }
+            await wobblyButton.getProjectList()
+            chrome.tabs.executeScript(tabID, {file: 'content.js'})
+            chrome.tabs.executeScript(tabID, {file: 'content-scripts/jira.js'}, () => {
+                wobblyButton.contentTabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab, {type: 'timer-data', data: wobblyButton.currentTimer, projects: wobblyButton.projectList});
+                })
+            })
+            chrome.tabs.insertCSS(tabID, {file: 'form-style.css'})
+            
+        }
+
+    },
+    apiCall: function (url, params = { method: 'GET' }, withAuth = true){
+        params['headers'] = params['headers'] || {};
+        if (withAuth) {
+            params.headers['Authorization'] = `Bearer ${wobblyButton.user.token}`;
+        }
+        return new Promise((resolve, reject) => {
+            fetch(url, params).then(
+                res => {
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            console.log('not authorized')
+                            wobblyButton.logout()
+                        }
+                        return reject(res);
+                    }
+                    return resolve(res.json());
+                },
+                err => reject(err)
+            );
+        });
+    },
+    getBrowserStorageData: function(type){
+        chrome.storage.local.get([type], (data) => {
+            if(data.token){
+                wobblyButton.user.token = data.token
+                wobblyButton.userAuth = true
+                wobblyButton.initSocketConnection()
+            }
+            else{
+                chrome.browserAction.setIcon({path: "images/favicon_g.png"});
+            }
+        })
+    },
+    getProjectList: function(){
+        return new Promise((resolve) => {
+            wobblyButton.apiCall('https://api.wobbly.me/project/list', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(
+                result => {
+                    wobblyButton.projectList = result.data.project_v2
+                    resolve(true);
+                }
+            );
+        });
+    },
+    initSocketConnection: function(){
+        socketConnection = openSocket('https://api.wobbly.me')
+        socketConnection.on('connect', () => {
+            socketConnection.emit(
+                'join-v2',
+                {
+                    token: `Bearer ${wobblyButton.user.token}`,
+                },
+                _ => {
+                    socketConnection.emit('check-timer-v2', {
+                        token: `Bearer ${wobblyButton.user.token}`,
+                    }, (res) => {
+                        if(res === 'Unauthorized'){
+                            wobblyButton.logout()
+                        }
+                    });
+                }
+            );
+        })
+        socketConnection.on('check-timer-v2', data => {
+            wobblyButton.currentTimer = data
+            if(data){
+                chrome.storage.local.set({currentTimer: data})
+                wobblyButton.contentTabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab, {type: 'timer-data', data, projects: wobblyButton.projectList });
+                })
+                
+            }
+        })
+        socketConnection.on('stop-timer-v2', data => {
+            wobblyButton.currentTimer = null
+            chrome.storage.local.remove(['currentTimer'])
+            wobblyButton.contentTabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
+            })
+        })
+        socketConnection.on('user-unauthorized', data => {
+            wobblyButton.logout()
+        })
+        // wobblyButton.getProjectList()
+    },
+    logout: function(){
+        wobblyButton.userAuth = false
+        wobblyButton.user.token = null
+        chrome.browserAction.setIcon({path: "images/favicon_g.png"})
+        chrome.storage.local.clear()
+        socketConnection.close()
+        socketConnection.emit('leave')
+    }
+}
+
+wobblyButton.getBrowserStorageData('token')
+
+chrome.runtime.onMessage.addListener((request, sender) => {
+    if(request.type === 'auth'){
+        chrome.tabs.onUpdated.addListener(wobblyButton.wobblyLogin)
+        chrome.tabs.create({url: 'https://time.wobbly.me/login'})
+    }
+    else if(request.type === 'wobbly-access'){
+        wobblyButton.userAuth = true
+        wobblyButton.user.token = request.token
+        chrome.browserAction.setIcon({path: "images/favicon.png"})
+        chrome.storage.local.set({token: request.token})
+        chrome.tabs.remove(sender.tab.id)
+        wobblyButton.initSocketConnection()
+    }
+    else if(request.type === 'auth-check'){
+        wobblyButton.userAuth = false
+    }
+    else if(request.type === 'timer-start'){
+        socketConnection.emit('start-timer-v2', {
+            token: `Bearer ${wobblyButton.user.token}`,
+            issue: request.data.issue,
+            projectId: request.data.project,
+        })
+    }
+    else if(request.type === 'timer-stop'){
+        socketConnection.emit('stop-timer-v2', {
+            token: `Bearer ${wobblyButton.user.token}`
+        })
+    }
+    
+})
+
+chrome.storage.onChanged.addListener(function(changes) {
+    for (var key in changes) {
+        var storageChange = changes[key];
+        if(!storageChange.newValue && !storageChange.oldValue.id){
+            wobblyButton.logout()
+        }
+    }
+})
+
+chrome.tabs.onUpdated.addListener(wobblyButton.tabUpdated)
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+    var index = wobblyButton.contentTabs.indexOf(tabId)
+    if(index > -1){
+        wobblyButton.contentTabs.splice(index, 1)
+    }
+})
