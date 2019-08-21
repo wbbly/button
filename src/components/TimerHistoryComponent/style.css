@@ -1,0 +1,58 @@
+.projects-history {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.projects-container {
+    width: 100%;
+}
+.projects-history p{
+    text-align: start;
+    margin: 10px 0 0;
+}
+.projects-history ul {
+    list-style: none;
+    padding: 0;
+    background: #4f4f4f;
+}
+.projects-history li {
+    height: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    font-size: 1.3rem;
+    padding: 2px 12px;
+    align-items: center;
+    cursor: default;
+}
+.projects-history li .task-name {
+    width: 75%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.projects-history .task-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 25%;
+}
+.task-controls img{
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+.task-controls div{
+    padding-left: 10px;
+}
+.projects-history button {
+    margin: 1rem;
+    width: 40%;
+}
+.time-history-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}

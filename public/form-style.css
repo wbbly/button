@@ -37,16 +37,17 @@
     padding: 0 20px;
     outline: none;
 }
-.wobbly-form-edit input {
+.wobbly-form-container input {
     box-sizing: border-box;
     font-family: inherit;
     width: 100%;
-    border: none;
+    border: 1px solid white;
     border-radius: 2px;
     outline: none;
     padding: 8px;
     margin-bottom: 10px;
 }
+
 .wobbly-form-container p {
     margin: 0 0 2px;
     font-family: Open Sans,sans-serif;
@@ -57,29 +58,38 @@
     line-height: 25px;
 }
 .wobbly-form-select {
+    position: relative;
     width: 100%;
     box-sizing: border-box;
     padding: 0 20px;
 }
-.wobbly-form-select select {
-    width: 100%;
+.wobbly-form-select .project-input {
+    margin-bottom: 0;
+}
+.projects-list{
+    /* position: absolute;
+    top: 50px;
+    width: 310px; */
+    position: absolute;
+    width: 310px;
+    box-shadow: 1px 2px 5px #333;
+    margin-top: -1px;
+    max-height: 102px;
+    overflow-y: scroll;
+    list-style: none;
+    padding: 0;
     background-color: white;
-    font-family: inherit;
+    color: black;
+}
+
+.projects-list li {
+    box-sizing: border-box;
+    font-size: 13px;
     padding: 8px;
-    border: none;
-    border-radius: 2px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
     cursor: pointer;
-    outline: none;
-    margin-bottom: 10px;
 }
-.wobbly-form-select select {
-    background-color: #fff;
-}
-select option {
-    padding: 20px;
+.projects-list li:hover {
+    background-color: #27ae60;
 }
 .wobbly-form-confirm{
     color: white;
@@ -97,4 +107,17 @@ select option {
     font-style: normal;
     font-size: 14px;
     line-height: normal;
+}
+
+.projects-list::-webkit-scrollbar {
+    width: 10px;
+}
+.projects-list::-webkit-scrollbar-track {
+    background: white; 
+}
+.projects-list::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+.projects-list::-webkit-scrollbar-thumb:hover {
+    background: #555; 
 }

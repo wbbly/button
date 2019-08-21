@@ -43,7 +43,7 @@ wobblyButton.renderButton('.ghx-detail-head:not(.wobbly)', function(elem){
         cursor: pointer;
         padding-left: 20px;
         margin-left: 5px;
-        background: url(${chrome.extension.getURL("images/favicon.png")}) no-repeat;
+        background: url(${chrome.extension.getURL("images/favicon.svg")}) no-repeat;
         background-size: contain;
     `
     link.onclick = () => wobblyButton.currentTimer ?  wobblyButton.timerStop() : wobblyButton.timerStart()
