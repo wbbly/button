@@ -1,5 +1,6 @@
 /*global chrome*/
 import openSocket from 'socket.io-client';
+import { AppConfig } from './config.js'
 
 let socketConnection = null
 
@@ -10,6 +11,7 @@ window.wobblyButton = {
     currentTimer: null,
     userAuth: false,
     projectList: null,
+    timerHistory: null,
     contentTabs: [],
     wobblyLogin: function(tabID, changeInfo, tab){
         if (!wobblyButton.userAuth && tab.url.indexOf('wobbly.me') > 0 && changeInfo.status === 'complete'){
@@ -46,7 +48,6 @@ window.wobblyButton = {
                 res => {
                     if (!res.ok) {
                         if (res.status === 401) {
-                            console.log('not authorized')
                             wobblyButton.logout()
                         }
                         return reject(res);
@@ -71,21 +72,37 @@ window.wobblyButton = {
     },
     getProjectList: function(){
         return new Promise((resolve) => {
-            wobblyButton.apiCall('https://api.wobbly.me/project/list', {
+            wobblyButton.apiCall(`${AppConfig.apiURL}project/list`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             }).then(
                 result => {
+                    chrome.storage.local.set({projects: result.data.project_v2})
                     wobblyButton.projectList = result.data.project_v2
                     resolve(true);
                 }
             );
         });
     },
+    getUserHistory: function(){
+        return new Promise((resolve) => {
+            wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(
+                result => {
+                    wobblyButton.timerHistory = result.data.timer_v2
+                    resolve(result.data.timer_v2);
+                }
+            );
+        });
+    },
     initSocketConnection: function(){
-        socketConnection = openSocket('https://api.wobbly.me')
+        socketConnection = openSocket(AppConfig.apiURL)
         socketConnection.on('connect', () => {
             socketConnection.emit(
                 'join-v2',
@@ -93,6 +110,8 @@ window.wobblyButton = {
                     token: `Bearer ${wobblyButton.user.token}`,
                 },
                 _ => {
+                    wobblyButton.getProjectList()
+                    wobblyButton.getUserHistory()
                     socketConnection.emit('check-timer-v2', {
                         token: `Bearer ${wobblyButton.user.token}`,
                     }, (res) => {
@@ -107,6 +126,8 @@ window.wobblyButton = {
             wobblyButton.currentTimer = data
             if(data){
                 chrome.storage.local.set({currentTimer: data})
+                chrome.browserAction.setIcon({path: "images/favicon-active.png"});
+                chrome.runtime.sendMessage({type: 'timer-data', data})
                 wobblyButton.contentTabs.forEach((tab) => {
                     chrome.tabs.sendMessage(tab, {type: 'timer-data', data, projects: wobblyButton.projectList });
                 })
@@ -115,6 +136,8 @@ window.wobblyButton = {
         })
         socketConnection.on('stop-timer-v2', data => {
             wobblyButton.currentTimer = null
+            wobblyButton.getUserHistory()
+            chrome.browserAction.setIcon({path: "images/favicon.png"});
             chrome.storage.local.remove(['currentTimer'])
             wobblyButton.contentTabs.forEach((tab) => {
                 chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
@@ -123,7 +146,7 @@ window.wobblyButton = {
         socketConnection.on('user-unauthorized', data => {
             wobblyButton.logout()
         })
-        // wobblyButton.getProjectList()
+        
     },
     logout: function(){
         wobblyButton.userAuth = false
@@ -137,7 +160,7 @@ window.wobblyButton = {
 
 wobblyButton.getBrowserStorageData('token')
 
-chrome.runtime.onMessage.addListener((request, sender) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.type === 'auth'){
         chrome.tabs.onUpdated.addListener(wobblyButton.wobblyLogin)
         chrome.tabs.create({url: 'https://time.wobbly.me/login'})
@@ -164,6 +187,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         socketConnection.emit('stop-timer-v2', {
             token: `Bearer ${wobblyButton.user.token}`
         })
+    }
+    else if(request.type === 'timer-history'){
+        wobblyButton.getUserHistory().then((res) => {
+            sendResponse({data: res})
+        })
+        return true
+        
     }
     
 })
