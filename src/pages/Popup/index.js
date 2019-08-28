@@ -5,21 +5,12 @@ import browser from 'webextension-polyfill';
 import logo from '../../images/icons/logo.svg'
 import exitSVG from '../../images/icons/sign-out-alt-solid.svg'
 import stopSVG from '../../images/icons/stop.svg'
+import settingsSVG from '../../images/icons/cog-wheel-silhouette.svg'
 
-import TimerHistoryComponent from '../TimerHistoryComponent';
+import TimerHistoryComponent from '../../components/TimerHistoryComponent';
 import { timerDuration } from '../../service/timeServises' 
 
 class Popup extends Component {
-    constructor(props){
-        super(props)
-        browser.runtime.onMessage.addListener((request, sender) => {
-            if (request.type === "timer-data") {
-                this.setState({currentTimer: request.data})
-                this.getCurrentTimerDuration()
-                this.timerTick()
-            }
-        })
-    }
     TIMER_LIVE;
     state = {
         isAuth: false,
@@ -55,6 +46,24 @@ class Popup extends Component {
         })
         this.getTimerHistory()
     }
+    componentDidMount(){
+        browser.runtime.onMessage.addListener((request, sender) => {
+            if (request.type === "timer-data") {
+                this.setState({currentTimer: request.data})
+                this.getCurrentTimerDuration()
+                this.timerTick()
+            }
+        })
+        browser.storage.onChanged.addListener((changes) => {
+            for (var key in changes) {
+                if(key === 'currentTimer' && !changes.currentTimer.hasOwnProperty('newValue')){
+                    this.setState({currentTimer: null, timer: null})
+                    clearTimeout(this.TIMER_LIVE)
+                    this.getTimerHistory()
+                }
+            }        
+        })
+    }
     getTimerHistory = () => {
         browser.runtime.sendMessage({type: 'timer-history'}).then((res) => {
             if(res){
@@ -63,7 +72,7 @@ class Popup extends Component {
         })
     }
     logout = () => {
-        browser.storage.local.clear()
+        browser.runtime.sendMessage({type: 'logout'})
         this.setState({isAuth: false})
         window.close();
     }
@@ -86,6 +95,9 @@ class Popup extends Component {
         clearTimeout(this.TIMER_LIVE)
         window.close()
     }
+    openSettings = () => {
+        browser.runtime.openOptionsPage()
+    }
     componentWillUnmount(){
         clearTimeout(this.TIMER_LIVE)
     }
@@ -93,8 +105,13 @@ class Popup extends Component {
         return(
             <div className="container">
                 <header>
-                    <img src={logo} />
-                    {this.state.isAuth ? <img src={exitSVG} className="exit-button" onClick={this.logout} /> : null}
+                    <img src={logo} onClick={() => browser.tabs.create({url: 'https://time.wobbly.me'})} />
+                    {this.state.isAuth ?  
+                        <div className="controls">
+                            <img src={settingsSVG} onClick={this.openSettings} />
+                            <img src={exitSVG} className="exit-button" onClick={this.logout} />
+                        </div>
+                    : null}
                 </header>
                 {!this.state.isAuth ? 
                 <div className="wrapper">

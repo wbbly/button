@@ -76,7 +76,7 @@ window.wobblyButton = {
         if (wobblyButton.link && wobblyButton.activeTimer && wobblyButton.activeTimer.issue.indexOf(wobblyButton.task) > -1){
             wobblyButton.currentTimer = true
             wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon-active.svg")})`
-            wobblyButton.link.textContent = "Stop timer"
+            wobblyButton.link.textContent = wobblyButton.link.textContent ? "Stop timer" : ''
         }
     },
     initFormContainer: function(){
@@ -85,9 +85,11 @@ window.wobblyButton = {
         let linkPosition = wobblyButton.link.getBoundingClientRect() 
         wobblyButton.formContainer = container
         container.innerHTML = wobblyButton.formElement
+        console.log(linkPosition, window.innerWidth)
+        let xPosition = window.innerWidth - linkPosition.left < 350 ? 'right: 0px;': `left: ${linkPosition.left}px;` 
         container.style = `
             top: ${linkPosition.top}px;
-            left: ${linkPosition.left}px;
+            ${xPosition}
         `
         let formTaskInput = searchElem('.task-input', container)
         let formProjectInput = searchElem('.project-input', container)
@@ -186,7 +188,7 @@ chrome.runtime.onMessage.addListener((request) => {
     if(request.type === 'timer-stop'){
         wobblyButton.activeTimer = null
         wobblyButton.currentTimer = false
-        wobblyButton.link.textContent = "Start timer"
+        wobblyButton.link.textContent = wobblyButton.link.textContent ? "Start timer" : ''
         wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon.svg")})`
     }
     else if(request.type === 'timer-data'){

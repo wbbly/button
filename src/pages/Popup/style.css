@@ -18,10 +18,10 @@ header {
   header img{
     height: 2rem;
     padding: 1rem 0;
+    cursor: pointer;
   }
   header .exit-button {
-      color: white;
-      cursor: pointer;
+    margin-left: 10px;
   }
   
 .wrapper{
