@@ -147,8 +147,8 @@ module.exports = function(webpackEnv) {
       // We include the app code last so that if there is a runtime error during
       // initialization, it doesn't blow up the WebpackDevServer client, and
       // changing JS code would still trigger a refresh.
-    ].filter(Boolean)
-    // projectForm: ['./src/projectform.js']
+    ].filter(Boolean),
+    settings: [paths.settingsJs]
     },
     output: {
       // The build folder.
@@ -504,6 +504,12 @@ module.exports = function(webpackEnv) {
             : undefined
         )
       ),
+      new HtmlWebpackPlugin({
+        inject: true,
+        chunks: ["settings"],
+        template: paths.settingsHtml,
+        filename: 'settings.html',
+      }),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       isEnvProduction &&

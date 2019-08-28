@@ -1,6 +1,7 @@
 /*global chrome*/
 import openSocket from 'socket.io-client';
 import { AppConfig } from './config.js'
+import originHosts from './originHosts'
 
 let socketConnection = null
 
@@ -13,28 +14,30 @@ window.wobblyButton = {
     projectList: null,
     timerHistory: null,
     contentTabs: [],
+    customHostList: [],
+    originHostList: [],
+    origins: null,
     wobblyLogin: function(tabID, changeInfo, tab){
         if (!wobblyButton.userAuth && tab.url.indexOf('wobbly.me') > 0 && changeInfo.status === 'complete'){
-            chrome.tabs.executeScript(tabID, {file: 'content-scripts/wobbly.js'})
+            chrome.tabs.executeScript(tabID, {file: 'scripts/content-scripts/wobbly.js'})
             chrome.tabs.onRemoved.addListener(() => {
                 chrome.tabs.onUpdated.removeListener(wobblyButton.wobblyLogin)
             })
         }
     },
     tabUpdated: async function (tabID, changeInfo, tab) {
-        if (wobblyButton.userAuth && tab.url.indexOf('j.mng.ninja') > 0 && changeInfo.status === 'complete'){
+        if (wobblyButton.userAuth && wobblyButton.checkTabForPermissions(tab.url) && changeInfo.status === 'complete'){
             if(wobblyButton.contentTabs.indexOf(tabID) < 0){
                 wobblyButton.contentTabs.push(tabID)
             }
             await wobblyButton.getProjectList()
-            chrome.tabs.executeScript(tabID, {file: 'content.js'})
-            chrome.tabs.executeScript(tabID, {file: 'content-scripts/jira.js'}, () => {
+            chrome.tabs.executeScript(tabID, {file: 'scripts/content.js'})
+            chrome.tabs.executeScript(tabID, {file: `scripts/content-scripts/${wobblyButton.getExecutedScript(tab.url)}`}, () => {
                 wobblyButton.contentTabs.forEach((tab) => {
                     chrome.tabs.sendMessage(tab, {type: 'timer-data', data: wobblyButton.currentTimer, projects: wobblyButton.projectList});
                 })
             })
-            chrome.tabs.insertCSS(tabID, {file: 'form-style.css'})
-            
+            chrome.tabs.insertCSS(tabID, {file: 'form-style.css'})           
         }
 
     },
@@ -88,7 +91,7 @@ window.wobblyButton = {
     },
     getUserHistory: function(){
         return new Promise((resolve) => {
-            wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list`, {
+            wobblyButton.userAuth && wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -155,10 +158,29 @@ window.wobblyButton = {
         chrome.storage.local.clear()
         socketConnection.close()
         socketConnection.emit('leave')
+    },
+    checkTabForPermissions: function(url){
+        if (!wobblyButton.origins) return false
+        return wobblyButton.origins.some((item) => url.indexOf(item.host) > -1)
+    },
+    getExecutedScript: function(url){
+        let scriptFile
+        wobblyButton.origins.forEach((item) => {
+            if(url.indexOf(item.host) > -1){               
+                scriptFile =  originHosts[item.integration].file
+            }
+        })
+        return scriptFile
     }
 }
 
 wobblyButton.getBrowserStorageData('token')
+
+chrome.storage.local.get(['customIntegrations', 'originIntegrations'], res => {
+        wobblyButton.customHostList = res.customIntegrations || []
+        wobblyButton.originHostList = res.originIntegrations || []
+        wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
+})
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.type === 'auth'){
@@ -193,16 +215,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({data: res})
         })
         return true
-        
+    }
+    else if(request.type === 'logout'){
+        wobblyButton.logout()
     }
     
 })
 
 chrome.storage.onChanged.addListener(function(changes) {
     for (var key in changes) {
-        var storageChange = changes[key];
-        if(!storageChange.newValue && !storageChange.oldValue.id){
-            wobblyButton.logout()
+        if(key === 'customIntegrations' && changes.customIntegrations.hasOwnProperty('newValue')){
+            wobblyButton.customHostList = changes.customIntegrations.newValue
+            wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
+
+        }
+        else if(key === 'originIntegrations' && changes.originIntegrations.hasOwnProperty('newValue')){
+            wobblyButton.originHostList = changes.originIntegrations.newValue
+            wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
         }
     }
 })
