@@ -84,8 +84,15 @@ class SettingsPage extends Component{
     }
     validateHost = (host) => {
         const { activeIntegrations } = this.state
+        if(!host){
+            return false
+        }
         if (activeIntegrations && activeIntegrations.some((item) => item.host === host)){
             alert('Already have this custom host')
+            return false
+        }
+        if (host.indexOf('http') > -1 || host.search(/[!@#$%^&*(),+`/?"\\\]\[:{}|<>]/g) > -1 || host.slice(-1) === '.'){
+            alert('Domain name must be look like "wobbly.me"')
             return false
         }
         return true
@@ -113,6 +120,27 @@ class SettingsPage extends Component{
         if(!originIntegrations) return false
         return originIntegrations.some((item) => item.host === integration)
     }
+    enableAllIntegrations = () => {
+        let hostArr = []
+        let permissionsArr = []
+        Object.keys(originHosts).forEach((key) => {
+            hostArr.push({host: key, integration: key})
+            permissionsArr.push(originHosts[key].url)
+        })
+        browser.permissions.request({origins: permissionsArr}).then((res) => {
+            if(res){
+                browser.storage.local.set({originIntegrations: hostArr})
+            }
+            else return
+        })
+    }
+    disableAllIntegrations = () => {
+        const { originIntegrations } = this.state
+        if(originIntegrations.length){
+            browser.permissions.remove({origins: originIntegrations})
+            browser.storage.local.set({originIntegrations: []})
+        }
+    }
     render(){
         const { customHost, integration, activeIntegrations } = this.state
         return(
@@ -136,10 +164,14 @@ class SettingsPage extends Component{
                                 </li>
                             ))}
                         </ul>
+                        <div>
+                            <button onClick={this.enableAllIntegrations}>Enable all</button>
+                            <button onClick={this.disableAllIntegrations}>Disable all</button>
+                        </div>
                     </section>
                     <section className="settings-integrations">
                         <h1>Custom integrations</h1>
-                        <p>If you use a tool hosted on a custom domain, you can enable it here. Enter the domain name in the format "wobbly.me" and select the integration from the dropdown. <span>Ports are not supported.</span></p>
+                        <p>If you use a custom domain, enter it in the format "wobbly.me" and select the integration from the dropdown. <span>Ports are not supported.</span></p>
                         <form className="settings-host" onSubmit={this.handleSubmit}>
                             <input 
                                 id="host-url" 

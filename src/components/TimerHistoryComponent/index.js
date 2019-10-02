@@ -18,6 +18,9 @@ class TimerHistoryComponent extends Component{
     componentWillMount(){
         this.splitProjectsByDates(this.props.timerHistory)
     }
+    componentWillReceiveProps(nextProps){
+        this.splitProjectsByDates(nextProps.timerHistory)
+    }
     splitProjectsByDates(items = []) {
         const formattedLogsDates = [];
         const formattedLogsDatesValues = [];
