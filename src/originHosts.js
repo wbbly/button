@@ -13,5 +13,15 @@ export default {
         url: '*://*.atlassian.net/*',
         name: 'Jira',
         file: 'jira.js'
+    },
+    'gitlab.com': {
+        url: '*://*.gitlab.com/*',
+        name: 'Gitlab',
+        file: 'gitlab.js'
+    },
+    'asana.com' : {
+        url: '*://*.asana.com/*',
+        name: 'Asana',
+        file: 'asana.js'
     }
 }

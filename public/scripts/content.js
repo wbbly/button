@@ -34,20 +34,21 @@ window.wobblyButton = {
         <div class="wobbly-form-select">
         <p>Project</p>
         <input type="text" class="project-input" placeholder="Select your project"/>
-        <ul class="projects-list">
+        <ul class="wobbly-projects-list">
 
         </ul>
         </div>
         <button class="wobbly-form-confirm">Start timer</button>`,
     renderButton: function(element, renderer){
+        let debounce = null
         const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if(mutation.target.className === 'wiki-edit'){
-                    renderer(element)
-                    wobblyButton.checkCurrentTimer()
-                    return
-                }
-            })
+            if(debounce){
+                clearTimeout(debounce)
+            }
+            debounce = setTimeout(() => {
+                renderer(element)
+                wobblyButton.checkCurrentTimer()
+            }, 500)
         })
         renderer(element)
         observer.observe(document, {childList: true, subtree: true})
@@ -73,7 +74,7 @@ window.wobblyButton = {
         chrome.runtime.sendMessage({type: 'timer-stop'})
     },
     checkCurrentTimer: function(){
-        if (wobblyButton.link && wobblyButton.activeTimer && wobblyButton.activeTimer.issue.indexOf(wobblyButton.task) > -1){
+        if (wobblyButton.link && wobblyButton.activeTimer && wobblyButton.activeTimer.issue.indexOf(encodeURI(wobblyButton.task)) > -1){
             wobblyButton.currentTimer = true
             wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon-active.svg")})`
             wobblyButton.link.textContent = wobblyButton.link.textContent ? "Stop timer" : ''
@@ -85,7 +86,6 @@ window.wobblyButton = {
         let linkPosition = wobblyButton.link.getBoundingClientRect() 
         wobblyButton.formContainer = container
         container.innerHTML = wobblyButton.formElement
-        console.log(linkPosition, window.innerWidth)
         let xPosition = window.innerWidth - linkPosition.left < 350 ? 'right: 0px;': `left: ${linkPosition.left}px;` 
         container.style = `
             top: ${linkPosition.top}px;

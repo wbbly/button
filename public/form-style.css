@@ -66,7 +66,7 @@
 .wobbly-form-select .project-input {
     margin-bottom: 0;
 }
-.projects-list{
+.wobbly-projects-list{
     /* position: absolute;
     top: 50px;
     width: 310px; */
@@ -82,13 +82,13 @@
     color: black;
 }
 
-.projects-list li {
+.wobbly-projects-list li {
     box-sizing: border-box;
     font-size: 13px;
     padding: 8px;
     cursor: pointer;
 }
-.projects-list li:hover {
+.wobbly-projects-list li:hover {
     background-color: #27ae60;
 }
 .wobbly-form-confirm{
@@ -109,15 +109,15 @@
     line-height: normal;
 }
 
-.projects-list::-webkit-scrollbar {
+.wobbly-projects-list::-webkit-scrollbar {
     width: 10px;
 }
-.projects-list::-webkit-scrollbar-track {
+.wobbly-projects-list::-webkit-scrollbar-track {
     background: white; 
 }
-.projects-list::-webkit-scrollbar-thumb {
+.wobbly-projects-list::-webkit-scrollbar-thumb {
     background: #888; 
 }
-.projects-list::-webkit-scrollbar-thumb:hover {
+.wobbly-projects-list::-webkit-scrollbar-thumb:hover {
     background: #555; 
 }
