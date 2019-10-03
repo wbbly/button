@@ -87,7 +87,6 @@ wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not
 
     let detail = searchElem('h1 ~ button[aria-label]').previousSibling.textContent
     let task = searchElem(elem).textContent
-    console.log(task, detail)
     wobblyButton.task = task
     wobblyButton.issue = encodeURI(`${task} ${detail}`)
 

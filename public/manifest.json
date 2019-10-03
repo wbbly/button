@@ -1,6 +1,6 @@
 {
   "name": "Wobbly Button",
-  "version": "1.0.10",
+  "version": "1.0.14",
   "manifest_version": 2,
   "permissions": [
     "tabs",

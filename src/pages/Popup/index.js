@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './style.css';
 import browser from 'webextension-polyfill';
+import * as moment from 'moment';
 
 import logo from '../../images/icons/logo.svg'
 import exitSVG from '../../images/icons/sign-out-alt-solid.svg'
@@ -85,13 +86,13 @@ class Popup extends Component {
         },1000)
     }
     getCurrentTimerDuration = () => {
-        let now = new Date()
-        let currentTimerDuration = Date.parse(now) - Date.parse(this.state.currentTimer.startDatetime)
+        let currentTimerDuration = +moment() - +moment(this.state.currentTimer.startDatetime) + this.state.currentTimer.timeDiff
         this.setState({timer: currentTimerDuration})
     }
     stopTimer = () => {
         browser.runtime.sendMessage({type: 'timer-stop'})
         this.setState({currentTimer: null, timer: null})
+        this.getTimerHistory()
         clearTimeout(this.TIMER_LIVE)
         window.close()
     }

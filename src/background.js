@@ -2,6 +2,7 @@
 import openSocket from 'socket.io-client';
 import { AppConfig } from './config.js'
 import originHosts from './originHosts'
+import * as moment from 'moment';
 
 let socketConnection = null
 
@@ -128,13 +129,23 @@ window.wobblyButton = {
         socketConnection.on('check-timer-v2', data => {
             wobblyButton.currentTimer = data
             if(data){
-                chrome.storage.local.set({currentTimer: data})
-                chrome.browserAction.setIcon({path: "images/favicon-active.png"});
-                chrome.runtime.sendMessage({type: 'timer-data', data})
-                wobblyButton.contentTabs.forEach((tab) => {
-                    chrome.tabs.sendMessage(tab, {type: 'timer-data', data, projects: wobblyButton.projectList });
-                })
-                
+                wobblyButton.apiCall(AppConfig.apiURL + 'time/current', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(res => {
+                    let timeDiff = +moment(res.timeISO) - +moment()
+                    data.timeDiff = timeDiff
+                    chrome.storage.local.set({currentTimer: data})
+                    chrome.browserAction.setIcon({path: "images/favicon-active.png"});
+                    chrome.runtime.sendMessage({type: 'timer-data', data})
+                    wobblyButton.contentTabs.forEach((tab) => {
+                        chrome.tabs.sendMessage(tab, {type: 'timer-data', data, projects: wobblyButton.projectList });
+                    })
+                }, 
+                err => console.log(err)
+                )
             }
         })
         socketConnection.on('stop-timer-v2', data => {

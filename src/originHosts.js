@@ -24,4 +24,14 @@ export default {
         name: 'Trello',
         file: 'trello.js',
     },
+    'gitlab.com': {
+        url: '*://*.gitlab.com/*',
+        name: 'Gitlab',
+        file: 'gitlab.js'
+    },
+    'asana.com' : {
+        url: '*://*.asana.com/*',
+        name: 'Asana',
+        file: 'asana.js'
+    }
 };
