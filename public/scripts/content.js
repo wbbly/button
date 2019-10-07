@@ -103,6 +103,11 @@ window.wobblyButton = {
         formTaskInput.value = decodeURI(wobblyButton.issue)
         formImg.src = chrome.extension.getURL("images/logo.svg");
 
+        // wobblyButton.projectList.forEach((project) => {
+        //     if(project.name.toLowerCase() === wobblyButton.project.toLowerCase()){
+        //         formProjectInput.value = project.name
+        //     }
+        // })
         formClose.onclick = (e) => {
             document.body.removeChild(container)
             wobblyButton.formContainer = null

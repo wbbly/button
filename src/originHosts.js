@@ -10,7 +10,7 @@ export default {
         file: 'jira.js',
     },
     'jira.com': {
-        url: '*://*.atlassian.net/*',
+        url: '*://*.jira.com/*',
         name: 'Jira',
         file: 'jira.js',
     },
