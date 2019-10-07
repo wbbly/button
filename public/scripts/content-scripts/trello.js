@@ -1,49 +1,55 @@
-'use strict';
+"use strict";
 /* global createTag */
-try {
-    // const getProject = () => {
-    //     const project = searchElem('.board-header-btn-text');
-    //     return project ? project.textContent.trim() : '';
-    // };
 
-    // wobblyButton.renderButton('.window-header:not(.wobbly)', elem => {
-    //     const rootElement = searchElem(elem);
-    //     const actionButton =
-    //         searchElem('.js-move-card') ||
-    //         searchElem('.js-copy-card') ||
-    //         searchElem('.js-archive-card') ||
-    //         searchElem('.js-more-menu');
-    //     if (!actionButton || !rootElement || rootElement.classList.contains('wobbly')) {
-    //         return;
-    //     }
+wobblyButton.renderButton(".window-header:not(.wobbly)", elem => {
+  const getProject = () => {
+    const project = searchElem(".board-header-btn-text");
+    return project ? project.textContent.trim() : "";
+  };
 
-    //     const getDescription = () => {
-    //         const description = searchElem('.window-title h2', rootElement);
-    //         return description ? description.textContent.trim() : '';
-    //     };
+  const rootElement = searchElem(elem);
+  if (!rootElement) return;
+  const actionButton =
+    searchElem(".js-move-card") ||
+    searchElem(".js-copy-card") ||
+    searchElem(".js-archive-card") ||
+    searchElem(".js-more-menu");
+  if (
+    !actionButton ||
+    !rootElement ||
+    rootElement.classList.contains("wobbly")
+  ) {
+    return;
+  }
 
-    //     rootElement.classList.add('wobbly');
-    //     const container = createTag('div', 'button-link trello-tb-wrapper');
-    //     let link = createTag('a', 'wobbly', 'Start timer');
-    //     link.style = `
-    //         cursor: pointer;
-    //         padding-left: 20px;
-    //         background: url(${chrome.extension.getURL('images/favicon.svg')}) no-repeat;
-    //         background-size: contain;
-    //     `;
-    //     link.onclick = () =>
-    //         wobblyButton.currentTimer ? wobblyButton.timerStop() : wobblyButton.timerStart(true);
+  const getDescription = () => {
+    const description = searchElem(".window-title h2", rootElement);
+    return description ? description.textContent.trim() : "";
+  };
 
-    //     wobblyButton.project = getProject();
-    //     wobblyButton.task = getDescription();
-    //     wobblyButton.issue = encodeURI(wobblyButton.task);
+  rootElement.classList.add("wobbly");
+  const container = createTag("div", "button-link trello-tb-wrapper");
+  let link = createTag("a", "wobbly", "Start timer");
+  link.style = `
+            cursor: pointer;
+            padding-left: 20px;
+            background: url(${chrome.extension.getURL(
+              "images/favicon.svg"
+            )}) no-repeat;
+            background-size: contain;
+        `;
+  link.onclick = () =>
+    wobblyButton.currentTimer
+      ? wobblyButton.timerStop()
+      : wobblyButton.timerStart(true);
 
-    //     link.title = `${wobblyButton.task} - ${wobblyButton.project}`;
+  wobblyButton.project = getProject();
+  wobblyButton.task = getDescription();
+  wobblyButton.issue = encodeURI(wobblyButton.task);
 
-    //     container.appendChild(link);
-    //     actionButton.parentNode.insertBefore(container, actionButton);
-    //     wobblyButton.link = link;
-    // });
-} catch (error) {
-    console.log('error', error);
-}
+  link.title = `${wobblyButton.task} - ${wobblyButton.project}`;
+
+  container.appendChild(link);
+  actionButton.parentNode.insertBefore(container, actionButton);
+  wobblyButton.link = link;
+});
