@@ -5,7 +5,7 @@ window.searchElem = (elem, searchIn) => {
 
 window.createTag = (name, className, textContent) => {
     let tag = document.createElement(name)
-    tag.classList.add(className)
+    tag.className = className
     if(textContent){
         tag.textContent = textContent
     }
@@ -78,6 +78,8 @@ window.wobblyButton = {
             wobblyButton.currentTimer = true
             wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon-active.svg")})`
             wobblyButton.link.textContent = wobblyButton.link.textContent ? "Stop timer" : ''
+        } else {
+            wobblyButton.currentTimer = false
         }
     },
     initFormContainer: function(){
