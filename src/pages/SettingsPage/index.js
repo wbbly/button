@@ -12,12 +12,12 @@ class SettingsPage extends Component{
     }
     componentWillMount(){
         document.body.style.backgroundColor = 'white'
-        browser.storage.local.get(['customIntegrations']).then((res) => {
+        browser.storage.sync.get(['customIntegrations']).then((res) => {
             if(res.customIntegrations && res.customIntegrations.length !== 0){
                 this.setState({activeIntegrations: res.customIntegrations})
             }
         })
-        browser.storage.local.get(['originIntegrations']).then((res) => {
+        browser.storage.sync.get(['originIntegrations']).then((res) => {
             if(res.originIntegrations && res.originIntegrations.length !== 0){
                 this.setState({originIntegrations: res.originIntegrations})
             }
@@ -48,22 +48,23 @@ class SettingsPage extends Component{
             }
         })
     }
-    handleSubmit = (e) => {
-        e.preventDefault()
-        const { integration, customHost, activeIntegrations } = this.state
-        if(!activeIntegrations && this.validateHost(customHost)){
-            browser.permissions.request({origins: [`*://${customHost}/*`]}).then((res) => {
+    handleSubmit = (host) => {
+        const { integration, activeIntegrations } = this.state
+        if(!activeIntegrations && this.validateHost(host)){
+            browser.permissions.request({origins: [`*://${host}/*`]}).then((res) => {
                 if(res){
-                    browser.storage.local.set({customIntegrations: [{integration, host: customHost}]})
+                    browser.storage.sync.set({customIntegrations: [{integration, host: host}]})
+                    this.setState({customHost: ''})
                 }
                 else return
             })
         }
-        else if(this.validateHost(customHost)) {
-            browser.permissions.request({origins: [`*://${customHost}/*`]}).then((res) => {
+        else if(this.validateHost(host)) {
+            browser.permissions.request({origins: [`*://${host}/*`]}).then((res) => {
                 if(res){
-                    activeIntegrations.push({integration, host: customHost})
-                    browser.storage.local.set({customIntegrations: activeIntegrations})
+                    activeIntegrations.push({integration, host: host})
+                    browser.storage.sync.set({customIntegrations: activeIntegrations})
+                    this.setState({customHost: ''})
                 }
                 else return
             })
@@ -80,7 +81,7 @@ class SettingsPage extends Component{
                 return false
             }
         })
-        browser.storage.local.set({customIntegrations: filteredArr})
+        browser.storage.sync.set({customIntegrations: filteredArr})
     }
     validateHost = (host) => {
         const { activeIntegrations } = this.state
@@ -91,11 +92,25 @@ class SettingsPage extends Component{
             alert('Already have this custom host')
             return false
         }
-        if (host.indexOf('http') > -1 || host.search(/[!@#$%^&*(),+`/?"\\\]\[:{}|<>]/g) > -1 || host.slice(-1) === '.'){
-            alert('Domain name must be look like "wobbly.me"')
+        if (host.search(/[!@#$%^&*(),+/:`?"\\\]\[{}|<>]/g) > -1 || host.slice(-1) === '.'){
+            alert('Domain name must be look like "wobbly.me" or "https://wobbly.me"')
             return false
         }
         return true
+    }
+    formatInputs = (e) => {
+        e.preventDefault()
+        const { customHost } = this.state
+        if(customHost.indexOf('https://') > -1) {
+            this.handleSubmit(customHost.replace('https://', ''))
+        }
+        else if(customHost.indexOf('http://') > -1) {
+            this.handleSubmit(customHost.replace('http://', ''))
+        }
+        else {
+            this.handleSubmit(customHost)
+        }
+
     }
     handleChange = (e) => {
         const { originIntegrations } = this.state
@@ -104,7 +119,7 @@ class SettingsPage extends Component{
             browser.permissions.request({origins: [`*://*.${targetValue}/*`]}).then((res) => {
                 if(res){
                     originIntegrations.push({integration: targetValue, host: targetValue})
-                    browser.storage.local.set({originIntegrations: originIntegrations})
+                    browser.storage.sync.set({originIntegrations: originIntegrations})
                 }
                 else return
             })
@@ -112,7 +127,7 @@ class SettingsPage extends Component{
         else if(!e.target.checked){
             browser.permissions.remove({origins: [`*://*.${targetValue}/*`]})
             let filteredArr = originIntegrations.filter((item) => item.host !== targetValue)
-            browser.storage.local.set({originIntegrations: filteredArr})
+            browser.storage.sync.set({originIntegrations: filteredArr})
         }
     }
     checkForActiveIntegration = (integration) => {
@@ -129,16 +144,20 @@ class SettingsPage extends Component{
         })
         browser.permissions.request({origins: permissionsArr}).then((res) => {
             if(res){
-                browser.storage.local.set({originIntegrations: hostArr})
+                browser.storage.sync.set({originIntegrations: hostArr})
             }
             else return
         })
     }
     disableAllIntegrations = () => {
         const { originIntegrations } = this.state
+        let permissionsArr = []
         if(originIntegrations.length){
-            browser.permissions.remove({origins: originIntegrations})
-            browser.storage.local.set({originIntegrations: []})
+            originIntegrations.forEach((item) => {
+                permissionsArr.push(originHosts[item.host].url)
+            })
+            browser.permissions.remove({origins: permissionsArr})
+            browser.storage.sync.set({originIntegrations: []})
         }
     }
     render(){
@@ -164,15 +183,15 @@ class SettingsPage extends Component{
                                 </li>
                             ))}
                         </ul>
-                        <div>
+                        <div className="controll-btns-container">
                             <button onClick={this.enableAllIntegrations}>Enable all</button>
                             <button onClick={this.disableAllIntegrations}>Disable all</button>
                         </div>
                     </section>
                     <section className="settings-integrations">
                         <h1>Custom integrations</h1>
-                        <p>If you use a custom domain, enter it in the format "wobbly.me" and select the integration from the dropdown. <span>Ports are not supported.</span></p>
-                        <form className="settings-host" onSubmit={this.handleSubmit}>
+                        <p>If you use a custom domain, enter it in the format "wobbly.me" or "https://wobbly.me" and select the integration from the dropdown. <span>Ports are not supported.</span></p>
+                        <form className="settings-host" onSubmit={this.formatInputs}>
                             <input 
                                 id="host-url" 
                                 type="text" 
