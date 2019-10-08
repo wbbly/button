@@ -40,6 +40,7 @@
 .wobbly-form-container input {
     box-sizing: border-box !important;
     font-family: inherit !important;
+    font-size: 13px !important;
     width: 100% !important;
     border: 1px solid white !important;
     border-radius: 2px !important;
@@ -122,4 +123,8 @@
 }
 .wobbly-projects-list::-webkit-scrollbar-thumb:hover {
     background: #555 !important; 
+}
+.wobbly-basecamp-btn-container {
+    display: flex;
+    align-items: center;
 }

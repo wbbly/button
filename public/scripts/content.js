@@ -34,7 +34,7 @@ window.wobblyButton = {
         <div class="wobbly-form-select">
         <p>Project</p>
         <input type="text" class="project-input" placeholder="Select your project"/>
-        <ul class="wobbly-projects-list">
+        <ul class="wobbly-projects-list" style="display: none;">
 
         </ul>
         </div>
