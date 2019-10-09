@@ -33,5 +33,10 @@ export default {
         url: '*://*.asana.com/*',
         name: 'Asana',
         file: 'asana.js'
-    }
+    },
+    'redmine.org': {
+        url: '*://*.redmine.org/*',
+        name: 'Redmine',
+        file: 'redmine.js'
+      },
 };
