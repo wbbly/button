@@ -10,12 +10,12 @@ export default {
         file: 'jira.js',
     },
     'jira.com': {
-        url: '*://*.atlassian.net/*',
+        url: '*://*.jira.com/*',
         name: 'Jira',
         file: 'jira.js',
     },
     'github.com': {
-        url: '*://github.com/*',
+        url: '*://*.github.com/*',
         name: 'Github',
         file: 'github.js',
     },
@@ -39,4 +39,9 @@ export default {
         name: 'Redmine',
         file: 'redmine.js'
       },
+    'basecamp.com': {
+        url: '*://*.basecamp.com/*',
+        name: 'Basecamp',
+        file: 'basecamp.js'
+    },
 };

@@ -34,7 +34,7 @@ window.wobblyButton = {
         <div class="wobbly-form-select">
         <p>Project</p>
         <input type="text" class="project-input" placeholder="Select your project"/>
-        <ul class="wobbly-projects-list">
+        <ul class="wobbly-projects-list" style="display: none;">
 
         </ul>
         </div>
@@ -103,6 +103,11 @@ window.wobblyButton = {
         formTaskInput.value = decodeURI(wobblyButton.issue)
         formImg.src = chrome.extension.getURL("images/logo.svg");
 
+        // wobblyButton.projectList.forEach((project) => {
+        //     if(project.name.toLowerCase() === wobblyButton.project.toLowerCase()){
+        //         formProjectInput.value = project.name
+        //     }
+        // })
         formClose.onclick = (e) => {
             document.body.removeChild(container)
             wobblyButton.formContainer = null

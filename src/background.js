@@ -63,7 +63,7 @@ window.wobblyButton = {
         });
     },
     getBrowserStorageData: function(type){
-        chrome.storage.local.get([type], (data) => {
+        chrome.storage.sync.get([type], (data) => {
             if(data.token){
                 wobblyButton.user.token = data.token
                 wobblyButton.userAuth = true
@@ -83,7 +83,7 @@ window.wobblyButton = {
                 },
             }).then(
                 result => {
-                    chrome.storage.local.set({projects: result.data.project_v2})
+                    chrome.storage.sync.set({projects: result.data.project_v2})
                     wobblyButton.projectList = result.data.project_v2
                     resolve(true);
                 }
@@ -137,7 +137,7 @@ window.wobblyButton = {
                 }).then(res => {
                     let timeDiff = +moment(res.timeISO) - +moment()
                     data.timeDiff = timeDiff
-                    chrome.storage.local.set({currentTimer: data})
+                    chrome.storage.sync.set({currentTimer: data})
                     chrome.browserAction.setIcon({path: "images/favicon-active.png"});
                     chrome.runtime.sendMessage({type: 'timer-data', data})
                     wobblyButton.contentTabs.forEach((tab) => {
@@ -152,7 +152,7 @@ window.wobblyButton = {
             wobblyButton.currentTimer = null
             wobblyButton.getUserHistory()
             chrome.browserAction.setIcon({path: "images/favicon.png"});
-            chrome.storage.local.remove(['currentTimer'])
+            chrome.storage.sync.remove(['currentTimer'])
             wobblyButton.contentTabs.forEach((tab) => {
                 chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
             })
@@ -166,7 +166,8 @@ window.wobblyButton = {
         wobblyButton.userAuth = false
         wobblyButton.user.token = null
         chrome.browserAction.setIcon({path: "images/favicon_g.png"})
-        chrome.storage.local.clear()
+        // chrome.storage.sync.clear()
+        chrome.storage.sync.remove(['token'])
         socketConnection.close()
         socketConnection.emit('leave')
     },
@@ -187,7 +188,7 @@ window.wobblyButton = {
 
 wobblyButton.getBrowserStorageData('token')
 
-chrome.storage.local.get(['customIntegrations', 'originIntegrations'], res => {
+chrome.storage.sync.get(['customIntegrations', 'originIntegrations'], res => {
         wobblyButton.customHostList = res.customIntegrations || []
         wobblyButton.originHostList = res.originIntegrations || []
         wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
@@ -202,7 +203,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         wobblyButton.userAuth = true
         wobblyButton.user.token = request.token
         chrome.browserAction.setIcon({path: "images/favicon.png"})
-        chrome.storage.local.set({token: request.token})
+        chrome.storage.sync.set({token: request.token})
+        localStorage.setItem('userToken',request.token)
         chrome.tabs.remove(sender.tab.id)
         wobblyButton.initSocketConnection()
     }
