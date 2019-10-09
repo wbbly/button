@@ -70,7 +70,8 @@
     "prebuild": "rimraf build",
     "build": "npm-run-all build:*",
     "build:app": "INLINE_RUNTIME_CHUNK=false node scripts/build.js",
-    "build:bg": "webpack --mode production ./src/background.js --output ./build/background.js",
+    "build:bgFox": "webpack --mode production ./src/background.js --output ./dist/firefox/background.js",
+    "build:bgChr": "webpack --mode production ./src/background.js --output ./dist/chrome/background.js",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
@@ -141,5 +142,9 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.4",
+    "filemanager-webpack-plugin": "^2.0.5"
   }
 }
