@@ -34,6 +34,11 @@ export default {
         name: 'Asana',
         file: 'asana.js'
     },
+    'redmine.org': {
+        url: '*://*.redmine.org/*',
+        name: 'Redmine',
+        file: 'redmine.js'
+      },
     'basecamp.com': {
         url: '*://*.basecamp.com/*',
         name: 'Basecamp',
