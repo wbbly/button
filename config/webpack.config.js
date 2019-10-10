@@ -643,16 +643,6 @@ module.exports = function(webpackEnv) {
                 { source: 'src/manifest-chrome.json', destination: 'dist/chrome/manifest.json' },
                 { source: 'src/manifest-firefox.json', destination: 'dist/firefox/manifest.json' }
               ],
-              archive: [
-                {
-                  source: 'dist/chrome',
-                  destination: `dist/wobbly-button-chrome.zip`
-                },
-                {
-                  source: 'dist/firefox',
-                  destination: `dist/wobbly-button-firefox.zip`
-                }
-              ],
               delete: [
                 'dist/chrome/manifest-chrome.json',
                 'dist/chrome/manifest-firefox.json',

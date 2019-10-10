@@ -44,7 +44,7 @@ class SettingsPage extends Component{
         })
         browser.runtime.onMessage.addListener((request, sender) => {
             if (request.type === "logout") {
-                window.close()
+                browser.tabs.getCurrent().then((tab) => browser.tabs.remove(tab.id));
             }
         })
     }

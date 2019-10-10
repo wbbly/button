@@ -80,7 +80,7 @@ wobblyButton.renderButton('#ghx-detail-view [spacing] h1:not(.wobbly)', function
     wobblyButton.link = link
 })
 
-wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not(.wobbly)', function(elem){
+wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not(#wobbly)', function(elem){
     if(!searchElem(elem) || searchElem('#ghx-detail-view [spacing] h1')) return
 
     const container = searchElem(elem).parentElement.parentElement.parentElement;
@@ -90,7 +90,7 @@ wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not
     wobblyButton.task = task
     wobblyButton.issue = encodeURI(`${task} ${detail}`)
 
-    searchElem(elem).classList.add('wobbly')
+    searchElem(elem).id = 'wobbly'
     let parentContainer = createTag('div', 'wobbly-button')
     parentContainer.style = `
         display: flex;
@@ -99,8 +99,8 @@ wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not
     let link = createTag('a', 'wobbly', 'Start timer')
     link.style = `
         cursor: pointer;
-        padding-left: 25px;
-        margin-left: 5px;
+        padding-left: 20px;
+        margin-left: 2px;
         background: url(${chrome.extension.getURL("images/favicon.svg")}) no-repeat;
         background-size: contain;
     `
