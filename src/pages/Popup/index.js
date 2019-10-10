@@ -79,6 +79,7 @@ class Popup extends Component {
     }
     login = () => {
         browser.runtime.sendMessage({type: 'auth'})
+        window.close();
     }
     timerTick = () => {
         this.TIMER_LIVE = setInterval(() => {
@@ -98,6 +99,7 @@ class Popup extends Component {
     }
     openSettings = () => {
         browser.runtime.openOptionsPage()
+        window.close();
     }
     componentWillUnmount(){
         clearTimeout(this.TIMER_LIVE)

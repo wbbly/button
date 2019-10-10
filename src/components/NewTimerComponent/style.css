@@ -38,19 +38,25 @@
 .task-input {
     margin-bottom: 10px;
 }
+.project-select-container {
+    width: 100%;
+    position: relative;
+}
 .projects-list{
     position: absolute;
-    top: 142px;
+    top: 32px;
     width: 100%;
     box-shadow: 1px 2px 5px #333;
     list-style: none;
     padding: 0;
     background-color: white;
     color: black;
+    margin: 0;
 }
 .projects-list li {
     box-sizing: border-box;
-    font-size: 1.3rem;
+    font-size: 13px;
+    line-height: 14px;
     padding: 8px;
     cursor: pointer;
 }
@@ -58,6 +64,7 @@
     background-color: #27ae60;
 }
 .project-form button {
-    margin-top: 20px;
+    margin-top: 3rem;
     width: 40%;
+    font-family: inherit;
 }

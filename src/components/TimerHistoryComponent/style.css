@@ -48,8 +48,9 @@
     padding-left: 10px;
 }
 .projects-history button {
-    margin: 1rem;
+    margin: 2rem 1rem 1rem;
     width: 40%;
+    font-family: inherit;
 }
 .time-history-container {
     width: 100%;

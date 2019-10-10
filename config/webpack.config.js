@@ -25,6 +25,8 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
+const CopyPlugin = require('copy-webpack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin');
 
 const postcssNormalize = require('postcss-normalize');
 
@@ -553,20 +555,20 @@ module.exports = function(webpackEnv) {
       // Generate a manifest file which contains a mapping of all asset filenames
       // to their corresponding output file so that tools can pick it up without
       // having to parse `index.html`.
-      new ManifestPlugin({
-        fileName: 'asset-manifest.json',
-        publicPath: publicPath,
-        generate: (seed, files) => {
-          const manifestFiles = files.reduce(function(manifest, file) {
-            manifest[file.name] = file.path;
-            return manifest;
-          }, seed);
+      // new ManifestPlugin({
+      //   fileName: 'asset-manifest.json',
+      //   publicPath: publicPath,
+      //   generate: (seed, files) => {
+      //     const manifestFiles = files.reduce(function(manifest, file) {
+      //       manifest[file.name] = file.path;
+      //       return manifest;
+      //     }, seed);
 
-          return {
-            files: manifestFiles,
-          };
-        },
-      }),
+      //     return {
+      //       files: manifestFiles,
+      //     };
+      //   },
+      // }),
       // Moment.js is an extremely popular library that bundles large locale files
       // by default due to how Webpack interprets its code. This is a practical
       // solution that requires the user to opt into importing specific locales.
@@ -575,20 +577,20 @@ module.exports = function(webpackEnv) {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the Webpack build.
-      isEnvProduction &&
-        new WorkboxWebpackPlugin.GenerateSW({
-          clientsClaim: true,
-          exclude: [/\.map$/, /asset-manifest\.json$/],
-          importWorkboxFrom: 'cdn',
-          navigateFallback: publicUrl + '/index.html',
-          navigateFallbackBlacklist: [
-            // Exclude URLs starting with /_, as they're likely an API call
-            new RegExp('^/_'),
-            // Exclude URLs containing a dot, as they're likely a resource in
-            // public/ and not a SPA route
-            new RegExp('/[^/]+\\.[^/]+$'),
-          ],
-        }),
+      // isEnvProduction &&
+      //   new WorkboxWebpackPlugin.GenerateSW({
+      //     clientsClaim: true,
+      //     exclude: [/\.map$/, /asset-manifest\.json$/],
+      //     importWorkboxFrom: 'cdn',
+      //     navigateFallback: publicUrl + '/index.html',
+      //     navigateFallbackBlacklist: [
+      //       // Exclude URLs starting with /_, as they're likely an API call
+      //       new RegExp('^/_'),
+      //       // Exclude URLs containing a dot, as they're likely a resource in
+      //       // public/ and not a SPA route
+      //       new RegExp('/[^/]+\\.[^/]+$'),
+      //     ],
+      //   }),
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({
@@ -617,6 +619,40 @@ module.exports = function(webpackEnv) {
           // The formatter is invoked directly in WebpackDevServerUtils during development
           formatter: isEnvProduction ? typescriptFormatter : undefined,
         }),
+        // new CopyPlugin([
+        //   {
+        //     from: 'manifest-firefox.json',
+        //     to: 'firefox/manifest.json'
+        //   },
+        //   {
+        //     from: 'manifest-chrome.json',
+        //     to: 'chrome/manifest.json'
+        //   }
+        // ], { copyUnmodified: true }),
+        new FileManagerPlugin({
+          onStart: [{
+            delete: [
+              'dist'
+            ],
+          },],
+          onEnd: [
+            {
+              copy: [
+                { source: 'build/**/*', destination: 'dist/chrome/' },
+                { source: 'build/**/*', destination: 'dist/firefox/' },
+                { source: 'src/manifest-chrome.json', destination: 'dist/chrome/manifest.json' },
+                { source: 'src/manifest-firefox.json', destination: 'dist/firefox/manifest.json' }
+              ],
+              delete: [
+                'dist/chrome/manifest-chrome.json',
+                'dist/chrome/manifest-firefox.json',
+                'dist/firefox/manifest-chrome.json',
+                'dist/firefox/manifest-firefox.json',
+                'build'
+              ]
+            }
+          ]
+        })
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.

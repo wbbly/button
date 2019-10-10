@@ -34,9 +34,9 @@ window.wobblyButton = {
         <div class="wobbly-form-select">
         <p>Project</p>
         <input type="text" class="project-input" placeholder="Select your project"/>
-        <ul class="wobbly-projects-list" style="display: none;">
+        <div class="wobbly-projects-list" style="display: none;">
 
-        </ul>
+        </div>
         </div>
         <button class="wobbly-form-confirm">Start timer</button>`,
     renderButton: function(element, renderer){
@@ -97,7 +97,7 @@ window.wobblyButton = {
         let formProjectInput = searchElem('.project-input', container)
         let formClose = searchElem('.wobbly-form-exit', container)
         let formImg = searchElem('img', container)
-        let formList = searchElem('ul', container)
+        let formList = searchElem('.wobbly-projects-list', container)
         let formButton = searchElem('.wobbly-form-confirm', container)
 
         formTaskInput.value = decodeURI(wobblyButton.issue)
@@ -157,7 +157,7 @@ window.wobblyButton = {
         let renderList = (projectList) => {
             formList.innerHTML = ""
             projectList.forEach((project) => {
-                let item = createTag('li', 'select-opt')
+                let item = createTag('div', 'select-opt')
                 item.id = project.id
                 item.textContent = project.name
                 item.onclick = projectSelect

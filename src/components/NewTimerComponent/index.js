@@ -7,7 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 class NewTimerComponent extends Component {
     state = {
         showProjectList: false,
-        projectList: null,
+        projectList: [],
         selectedProject: {
             name: null,
             id: null
@@ -23,7 +23,12 @@ class NewTimerComponent extends Component {
             let afterSearch = this.props.projectsList.filter(
                 obj => obj.name.toLowerCase().indexOf(event.target.value.toLowerCase().trim()) !== -1
             );
-            this.setState({projectList: afterSearch})
+            if(event.target.value.length > 0 && afterSearch.length === 0) {
+                this.setState({showProjectList: false})
+            }
+            else {
+                this.setState({projectList: afterSearch, showProjectList: true})
+            }
         }
         else{
             this.setState({projectList: this.props.projectsList})
@@ -89,6 +94,7 @@ class NewTimerComponent extends Component {
                     onChange={(e) => this.setState({taskValue: e.target.value, timerFail: false})}
                 />
                 <p>Project</p>
+                <div className="project-select-container">
                 <input 
                     className="project-input"
                     type="text" 
@@ -100,7 +106,7 @@ class NewTimerComponent extends Component {
                         this.setState({showProjectList: true, projectList: this.props.projectsList, timerFail: false})
                     }}
                 />
-                {showProjectList && 
+                {showProjectList &&
                 <ul className="projects-list" ref={this.setWrapperRef}>
                     <Scrollbars autoHeight autoHeightMax={90}>
                     {projectList && projectList.map((project) => (
@@ -108,6 +114,7 @@ class NewTimerComponent extends Component {
                     ))}
                     </Scrollbars>
                 </ul>}
+                </div>
                 <button onClick={this.startTimer}>Start timer</button>
             </div>
         )

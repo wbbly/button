@@ -78,20 +78,23 @@
     box-shadow: 1px 2px 5px #333 !important;
     margin-top: -1px !important;
     max-height: 102px !important;
-    overflow-y: scroll !important;
+    overflow-y: auto !important;
     list-style: none !important;
     padding: 0 !important;
     background-color: white !important;
     color: black !important;
 }
 
-.wobbly-projects-list li {
+.wobbly-projects-list div {
     box-sizing: border-box !important;
     font-size: 13px !important;
     padding: 8px !important;
     cursor: pointer !important;
 }
-.wobbly-projects-list li:hover {
+/* .wobbly-projects-list:empty {
+    display: none;
+} */
+.wobbly-projects-list div:hover {
     background-color: #27ae60 !important;
 }
 .wobbly-form-confirm{
