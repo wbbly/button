@@ -49,6 +49,11 @@ class Popup extends Component {
     }
     componentDidMount(){
         browser.runtime.onMessage.addListener((request, sender) => {
+            if (request.type === "user-token" && !request.data) {
+                this.setState({isAuth: false})
+            }
+        })
+        browser.runtime.onMessage.addListener((request, sender) => {
             if (request.type === "timer-data") {
                 this.setState({currentTimer: request.data})
                 this.getCurrentTimerDuration()
