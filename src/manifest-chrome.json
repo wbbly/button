@@ -1,13 +1,14 @@
 {
   "name": "Wobbly Button",
-  "version": "1.0.20",
+  "version": "1.0.23",
   "manifest_version": 2,
   "permissions": [
     "tabs",
     "notifications",
     "*://*.wobbly.me/*",
     "identity",
-    "storage"
+    "storage",
+    "contextMenus"
     
  ],
   "optional_permissions": [
