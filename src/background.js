@@ -20,6 +20,7 @@ window.wobblyButton = {
     origins: null,
     notificationInfo: null,
     activeNotificationTimer: null,
+    defaultProject: "f339b6b6-d044-44f3-8887-684e112f7cfd",
     wobblyLogin: function(tabID, changeInfo, tab){
         if (!wobblyButton.userAuth && tab.url.indexOf('wobbly.me') > 0 && changeInfo.status === 'complete'){
             chrome.tabs.executeScript(tabID, {file: 'scripts/content-scripts/wobbly.js'})
@@ -69,6 +70,7 @@ window.wobblyButton = {
             if(data.token){
                 wobblyButton.user.token = data.token
                 wobblyButton.userAuth = true
+                wobblyButton.createContextMenu()
                 wobblyButton.initSocketConnection()
             }
             else{
@@ -203,6 +205,7 @@ window.wobblyButton = {
         chrome.storage.sync.remove(['token'])
         socketConnection.close()
         socketConnection.emit('leave')
+        chrome.contextMenus.removeAll()
     },
     checkTabForPermissions: function(url){
         if (!wobblyButton.origins) return false
@@ -220,10 +223,10 @@ window.wobblyButton = {
     showNotification: function(delay){
         wobblyButton.activeNotificationTimer = setTimeout(() => {
             if(wobblyButton.checkForAllowedTimeNotification()){
-                chrome.notifications.create('notifChrome',{message: 'Don`t forgеt to start the timer', title: 'Wobbly Button',type: 'basic', iconUrl: 'images/favicon.png'})
-                wobblyButton.activeNotificationTimer = null
-                wobblyButton.notificationInfo.isShowed = true
-                chrome.storage.sync.set({ notificationInfo: wobblyButton.notificationInfo})         
+                let notifId = `notifChrome-${Math.round(Math.random()*100)}`
+                chrome.notifications.create(notifId,{message: 'Don`t forgеt to start the timer', title: 'Wobbly Button',type: 'basic', iconUrl: 'images/favicon.svg'})
+                // chrome.storage.sync.set({ notificationInfo: wobblyButton.notificationInfo})
+                restartNotificationTimer()
             }
             else {
                 wobblyButton.activeNotificationTimer = null
@@ -235,7 +238,7 @@ window.wobblyButton = {
         if(wobblyButton.currentTimer || wobblyButton.activeNotificationTimer) return
         let settingsDelay = wobblyButton.notificationInfo.notificationDelay.value
         let delay = settingsDelay - (+moment() - +moment(lastTimerStop))
-        wobblyButton.showNotification(delay <= 0 ? 600000 : delay)
+        wobblyButton.showNotification(delay <= 0 ? settingsDelay : delay)
     },
     checkForAllowedTimeNotification: function(){
         const { timeFrom, timeTo } = wobblyButton.notificationInfo.timeRange
@@ -251,6 +254,20 @@ window.wobblyButton = {
         } else {
             return false
         }
+    },
+    createContextMenu: function(){
+        chrome.contextMenus && chrome.contextMenus.create({
+            title: 'Begin timer with description "%s"',
+            contexts: ['selection'],
+            onclick: wobblyButton.contextMenuClicked
+        })
+    },
+    contextMenuClicked: function(data){
+        socketConnection.emit('start-timer-v2', {
+            token: `Bearer ${wobblyButton.user.token}`,
+            issue: encodeURI(data.selectionText),
+            projectId: wobblyButton.defaultProject,
+        })
     }
 }
 
@@ -262,6 +279,11 @@ chrome.storage.sync.get(['customIntegrations', 'originIntegrations'], res => {
         wobblyButton.originHostList = res.originIntegrations || []
         wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
 })
+let restartNotificationTimer = () => {
+    clearTimeout(wobblyButton.activeNotificationTimer)
+    wobblyButton.activeNotificationTimer = null
+    wobblyButton.showNotification(wobblyButton.notificationInfo.notificationDelay.value)
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.type === 'auth'){
@@ -270,6 +292,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     else if(request.type === 'wobbly-access'){
         wobblyButton.userAuth = true
+        wobblyButton.createContextMenu()
         wobblyButton.user.token = request.token
         chrome.browserAction.setIcon({path: "images/favicon.png"})
         chrome.storage.sync.set({token: request.token})
@@ -319,6 +342,9 @@ chrome.storage.onChanged.addListener(function(changes) {
         }
         else if(key === 'notificationInfo' && changes.notificationInfo.hasOwnProperty('newValue')){
             wobblyButton.notificationInfo = changes.notificationInfo.newValue
+            clearTimeout(wobblyButton.activeNotificationTimer)
+            wobblyButton.activeNotificationTimer = null
+            wobblyButton.getUserHistory()
             if(!changes.notificationInfo.newValue.allowNotifications && wobblyButton.activeNotificationTimer){
                 clearTimeout(wobblyButton.activeNotificationTimer)
                 wobblyButton.activeNotificationTimer = null

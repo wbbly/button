@@ -86,7 +86,12 @@ class SettingsNotifications extends Component {
         isShowed
       };
       browser.storage.sync.set({ notificationInfo });
-      alert("Reminder added");
+      if(allowNotifications) {
+        alert("Reminder added");
+      }
+      else {
+        alert("Reminder disabled");
+      }
     }
   };
   componentDidUpdate(prevProps) {
