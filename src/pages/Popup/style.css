@@ -21,6 +21,9 @@ header {
   header .exit-button {
     margin-left: 10px;
   }
+.header-login-popup {
+    justify-content: center;
+}
   
 .wrapper{
     display: flex;
@@ -28,6 +31,20 @@ header {
     justify-content: center;
     align-items: center;
     padding: 0 2rem 2rem;
+}
+.timer-logo {
+    margin: 20px 0;
+}
+.wrapper .wobbly-link {
+    margin: 25px 0 10px;
+}
+.wrapper .login-button {
+    width: 35%;
+    padding: 1.2rem 0;
+}
+.wrapper .wobbly-link span {
+    cursor: pointer;
+    font-weight: 200;
 }
 .wrapper h1{
     margin: 0 0 20px;

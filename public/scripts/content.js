@@ -21,6 +21,7 @@ window.wobblyButton = {
     issue: null,
     formContainer: null,
     projectList: null,
+    nextTaskTurn: false,
     formElement: `<div class="wobbly-form-header">
         <img />
         <div class="wobbly-form-exit">
@@ -54,10 +55,6 @@ window.wobblyButton = {
         observer.observe(document, {childList: true, subtree: true})
     },
     timerStart: function(){
-        if(wobblyButton.activeTimer){
-            alert('Already have an active timer')
-            return
-        }
         if(wobblyButton.formContainer){
             return
         }
@@ -65,6 +62,11 @@ window.wobblyButton = {
         
     },
     sendTimerData: function(){
+        if(wobblyButton.activeTimer){
+            wobblyButton.nextTaskTurn = true
+            chrome.runtime.sendMessage({type: 'timer-stop'})
+            return
+        }
         chrome.runtime.sendMessage({type: 'timer-start', data: {
             project: wobblyButton.projectID,
             issue: wobblyButton.issue
@@ -197,6 +199,16 @@ chrome.runtime.onMessage.addListener((request) => {
         wobblyButton.currentTimer = false
         wobblyButton.link.textContent = wobblyButton.link.textContent ? "Start timer" : ''
         wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon.svg")})`
+    } else if(request.type === 'timer-ready'){
+        if(wobblyButton.nextTaskTurn){
+            wobblyButton.nextTaskTurn = false
+            setTimeout(() => {
+                chrome.runtime.sendMessage({type: 'timer-start', data: {
+                    project: wobblyButton.projectID,
+                    issue: wobblyButton.issue
+                }})
+            }, 500)
+        }
     }
     else if(request.type === 'timer-data'){
         wobblyButton.activeTimer = request.data

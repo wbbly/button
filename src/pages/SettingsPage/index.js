@@ -25,9 +25,9 @@ class SettingsPage extends Component {
       }
     });
     browser.storage.sync.get(["notificationInfo"]).then(res => {
-        if (res.notificationInfo) {
-          this.setState({ notificationInfo: res.notificationInfo });
-        }
+      if (res.notificationInfo) {
+        this.setState({ notificationInfo: res.notificationInfo });
+      }
     });
   }
   componentDidMount() {
@@ -183,7 +183,12 @@ class SettingsPage extends Component {
     }
   };
   render() {
-    const { customHost, integration, activeIntegrations, notificationInfo } = this.state;
+    const {
+      customHost,
+      integration,
+      activeIntegrations,
+      notificationInfo
+    } = this.state;
     return (
       <>
         <header className="settings-header">
@@ -233,7 +238,11 @@ class SettingsPage extends Component {
                   value={integration}
                   onChange={e => this.setState({ integration: e.target.value })}
                 >
-                  <option value="jira.com">Jira</option>
+                  {Object.keys(originHosts).map(integration => (
+                    <option value={integration} key={integration}>
+                      {originHosts[integration].name}
+                    </option>
+                  ))}
                 </select>
                 <input id="submit-btn" type="submit" value="Add" />
               </div>
@@ -251,7 +260,7 @@ class SettingsPage extends Component {
               </ul>
             )}
           </section>
-          <SettingsNotifications info={notificationInfo}/>
+          <SettingsNotifications info={notificationInfo} />
         </main>
       </>
     );

@@ -4,6 +4,7 @@ import browser from 'webextension-polyfill';
 import * as moment from 'moment';
 
 import logo from '../../images/icons/logo.svg'
+import timerSVG from '../../images/timer.svg'
 import exitSVG from '../../images/icons/sign-out-alt-solid.svg'
 import stopSVG from '../../images/icons/stop.svg'
 import settingsSVG from '../../images/icons/cog-wheel-silhouette.svg'
@@ -58,6 +59,10 @@ class Popup extends Component {
                 this.setState({currentTimer: request.data})
                 this.getCurrentTimerDuration()
                 this.timerTick()
+            } else if(request.type === "timer-history") {
+                if(request.data){
+                    this.setState({timerHistory: request.data})
+                }
             }
         })
         browser.storage.onChanged.addListener((changes) => {
@@ -71,7 +76,7 @@ class Popup extends Component {
         })
     }
     getTimerHistory = () => {
-        browser.runtime.sendMessage({type: 'timer-history'}).then((res) => {
+        browser.runtime.sendMessage({type: 'get-timer-history'}).then((res) => {
             if(res){
                 this.setState({timerHistory: res.data})
             }
@@ -112,20 +117,21 @@ class Popup extends Component {
     render(){
         return(
             <div className="container">
-                <header>
+                {!this.state.isAuth ? <header className="header-login-popup">
                     <img src={logo} onClick={() => browser.tabs.create({url: 'https://time.wobbly.me'})} />
-                    {this.state.isAuth ?  
+                </header> : <header>
+                    <img src={logo} onClick={() => browser.tabs.create({url: 'https://time.wobbly.me'})} />                  
                         <div className="controls">
                             <img src={settingsSVG} onClick={this.openSettings} />
                             <img src={exitSVG} className="exit-button" onClick={this.logout} />
                         </div>
-                    : null}
-                </header>
+                </header> }
                 {!this.state.isAuth ? 
                 <div className="wrapper">
-                    <h1>Greetings from Wobbly Button</h1>
-                    <p>Click the Login button to access your Wobbly account</p>
-                    <button onClick={this.login}>Login</button>
+                    <img src={timerSVG} className="timer-logo"/>
+                    <p>Get ready to track time and boost your productivity!</p>
+                    <button className="login-button" onClick={this.login}>Login</button>
+                    <p className="wobbly-link">See more on <span onClick={() => browser.tabs.create({url: 'https://wobbly.me'})}>Wobbly.me</span> </p>
                 </div> : 
                     this.state.currentTimer ? 
                     <div className="wrapper">
