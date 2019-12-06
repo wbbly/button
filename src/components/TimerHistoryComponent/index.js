@@ -6,6 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import * as moment from 'moment';
 
 import playSVG from '../../images/icons/play.svg'
+import editSVG from '../../images/icons/baseline-create-24px.svg'
 import { timerDuration } from '../../service/timeServises'
 import NewTimerComponent from '../NewTimerComponent';
 
@@ -13,7 +14,8 @@ class TimerHistoryComponent extends Component{
     state = {
         todayTimers: null,
         yesterdayTimers: null,
-        startNewTimer: false,
+        triggerTaskComponent: false,
+        editedTask: null
     }
     componentWillMount(){
         this.splitProjectsByDates(this.props.timerHistory)
@@ -73,11 +75,38 @@ class TimerHistoryComponent extends Component{
             window.close()
         }
     }
+    editSelectedTask = (task) => {
+        this.setState({editedTask: task, triggerTaskComponent: true})
+    }
+    showEditButton = event => {
+        let targetButton = event.currentTarget.childNodes[0]
+        let targetTask = event.currentTarget.childNodes[1]
+        let swipedTasks = document.querySelectorAll('.task-moved')
+        let activeButtons = document.querySelectorAll('.img-visible')
+        swipedTasks.length > 0 && swipedTasks.forEach((elem) => {
+            elem.classList.remove('task-moved')
+        })
+        activeButtons.length > 0 && activeButtons.forEach((elem) => {
+            elem.classList.remove('img-visible')
+        })
+        targetButton.classList.add('img-visible')
+        targetTask.classList.add('task-moved')
+    }
+    hideEditButton = event => {
+        let swipedTasks = document.querySelectorAll('.task-moved')
+        let activeButtons = document.querySelectorAll('.img-visible')
+        swipedTasks.length > 0 && swipedTasks.forEach((elem) => {
+            elem.classList.remove('task-moved')
+        })
+        activeButtons.length > 0 && activeButtons.forEach((elem) => {
+            elem.classList.remove('img-visible')
+        })
+    }
 
     render(){
-        const { todayTimers, yesterdayTimers, startNewTimer } = this.state
+        const { todayTimers, yesterdayTimers, triggerTaskComponent, editedTask } = this.state
         return(
-            startNewTimer ? <NewTimerComponent projectsList={this.props.projectsList} moveBack={() => this.setState({startNewTimer: false})}/> : 
+            triggerTaskComponent ? <NewTimerComponent projectsList={this.props.projectsList} moveBack={() => this.setState({triggerTaskComponent: false, editedTask: null})} editedTask={editedTask}/> : 
                 (<div className="projects-history">
                     <div className="projects-container">
                         <p>Today: {todayTimers && timerDuration(this.getTotalTime(todayTimers))}</p>
@@ -89,12 +118,18 @@ class TimerHistoryComponent extends Component{
                                     todayTimers.map((item) => (
                                         <li>
                                             <div 
+                                                onMouseOver={this.showEditButton}
+                                                onMouseOut={this.hideEditButton}
                                                 className="task-name"
                                                 title={`${decodeURI(item.issue)} • ${item.project.name}`}
-                                            >{decodeURI(item.issue)} • {item.project.name}</div>
+                                            >
+                                                <div className="edit-button">
+                                                    <img src={editSVG} onClick={(e) => this.editSelectedTask(item)}/>
+                                                </div>
+                                                <span className="task-name-text">{decodeURI(item.issue)} • {item.project.name}</span></div>
                                             <div className="task-controls">
                                                  <div>{timerDuration(this.getTaskTime(item.start_datetime, item.end_datetime))}</div>
-                                                <img id={item.id} src={playSVG} onClick={this.startTimer}/>
+                                                 <img id={item.id} src={playSVG} onClick={this.startTimer}/>
                                             </div>
                                         </li>
                                     ))
@@ -113,9 +148,15 @@ class TimerHistoryComponent extends Component{
                                     {yesterdayTimers && yesterdayTimers.map((item) => (
                                         <li>
                                             <div 
+                                                onMouseOver={this.showEditButton}
+                                                onMouseOut={this.hideEditButton}
                                                 className="task-name"
                                                 title={`${decodeURI(item.issue)} • ${item.project.name}`}
-                                            >{decodeURI(item.issue)} • {item.project.name}</div>
+                                            >
+                                                <div className="edit-button">
+                                                    <img src={editSVG} onClick={(e) => this.editSelectedTask(item)}/>
+                                                </div>
+                                                <span className="task-name-text">{decodeURI(item.issue)} • {item.project.name}</span></div>
                                             <div className="task-controls">
                                                 <div>{timerDuration(this.getTaskTime(item.start_datetime, item.end_datetime))}</div>
                                                 <img id={item.id} src={playSVG} onClick={this.startTimer}/>
@@ -126,7 +167,7 @@ class TimerHistoryComponent extends Component{
                             </ul>
                         </div>
                     )}
-                    <button onClick={() => this.setState({startNewTimer: true})}>Start new timer</button>
+                    <button onClick={() => this.setState({triggerTaskComponent: true})}>Start new timer</button>
                 </div>)
         )
     }

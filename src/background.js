@@ -6,6 +6,20 @@ import * as moment from 'moment';
 
 let socketConnection = null
 
+let defaultNotificationInfo = {
+    allowNotifications: true,
+    timeRange: {
+        timeFrom: '09:00',
+        timeTo: '18:00'
+    },
+    notificationDelay: {
+        value: 259200000,
+        // value: 30000,
+        format: 'days'
+    },
+    isShowed: false
+}
+
 window.wobblyButton = {
     user: {
         token: null
@@ -81,24 +95,23 @@ window.wobblyButton = {
     getBrowserNotificationsInfo: function(){
         chrome.storage.sync.get('notificationInfo', (res) => {
             if(res.notificationInfo){
-                wobblyButton.notificationInfo = res.notificationInfo
+                wobblyButton.notificationInfo = wobblyButton.userAuth ? res.notificationInfo : defaultNotificationInfo
             }
             else{
-                let notificationInfo = {
-                    allowNotifications: true,
-                    timeRange: {
-                        timeFrom: '09:00',
-                        timeTo: '18:00'
-                    },
-                    notificationDelay: {
-                        value: 259200000,
-                        format: 'days'
-                    },
-                    isShowed: false
-                }
-                chrome.storage.sync.set({ notificationInfo });
+                wobblyButton.notificationInfo = defaultNotificationInfo
+                chrome.storage.sync.set({ notificationInfo: defaultNotificationInfo });
             }
         })
+        !wobblyButton.userAuth && chrome.storage.sync.get('unauthTimerStart', (res) => {
+            if(!res.unauthTimerStart){
+                let startDelay = moment().set({hour:12,minute:0,second:0,millisecond:0}).format()
+                chrome.storage.sync.set({ unauthTimerStart: startDelay})
+                wobblyButton.startNotificationDelay(startDelay)
+            } else {
+                wobblyButton.startNotificationDelay(res.unauthTimerStart)
+            }
+        })
+
     },
     getProjectList: function(){
         return new Promise((resolve) => {
@@ -127,7 +140,10 @@ window.wobblyButton = {
             }).then(
                 result => {
                     wobblyButton.timerHistory = result.data.timer_v2
-                    !wobblyButton.notificationInfo.isShowed && wobblyButton.notificationInfo.allowNotifications && wobblyButton.startNotificationDelay(result.data.timer_v2[0].end_datetime)
+                    wobblyButton.contentTabs.forEach((tab) => {
+                        chrome.tabs.sendMessage(tab, {type: 'timer-ready'});
+                    })
+                    !wobblyButton.notificationInfo.isShowed && wobblyButton.notificationInfo.allowNotifications && wobblyButton.startNotificationDelay(result.data.timer_v2[0].end_datetime || moment().format())
                     resolve(result.data.timer_v2);
                 }
             );
@@ -154,9 +170,10 @@ window.wobblyButton = {
                 }
             );
         })
-        socketConnection.on('check-timer-v2', data => {
-            wobblyButton.currentTimer = data
+
+        socketConnection.on('check-timer-v2', data => {  
             if(data){
+                wobblyButton.currentTimer = data
                 wobblyButton.apiCall(AppConfig.apiURL + 'time/current', {
                     method: 'GET',
                     headers: {
@@ -179,18 +196,33 @@ window.wobblyButton = {
                 err => console.log(err)
                 )
             }
+            else if(wobblyButton.currentTimer){
+                wobblyButton.currentTimer = null
+                wobblyButton.notificationInfo.isShowed = false
+                chrome.storage.sync.set({ notificationInfo: wobblyButton.notificationInfo});
+                wobblyButton.getUserHistory()
+                chrome.browserAction.setIcon({path: "images/favicon.png"});
+                chrome.storage.sync.remove(['currentTimer'])
+                wobblyButton.contentTabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
+                })
+    
+            }
+            else {
+                wobblyButton.currentTimer = null
+            }
         })
-        socketConnection.on('stop-timer-v2', data => {
-            wobblyButton.currentTimer = null
-            wobblyButton.notificationInfo.isShowed = false
-            chrome.storage.sync.set({ notificationInfo: wobblyButton.notificationInfo});
-            wobblyButton.getUserHistory()
-            chrome.browserAction.setIcon({path: "images/favicon.png"});
-            chrome.storage.sync.remove(['currentTimer'])
-            wobblyButton.contentTabs.forEach((tab) => {
-                chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
-            })
-        })
+        // socketConnection.on('stop-timer-v2', data => {
+        //     wobblyButton.currentTimer = null
+        //     wobblyButton.notificationInfo.isShowed = false
+        //     chrome.storage.sync.set({ notificationInfo: wobblyButton.notificationInfo});
+        //     wobblyButton.getUserHistory()
+        //     chrome.browserAction.setIcon({path: "images/favicon.png"});
+        //     chrome.storage.sync.remove(['currentTimer'])
+        //     wobblyButton.contentTabs.forEach((tab) => {
+        //         chrome.tabs.sendMessage(tab, {type: 'timer-stop'});
+        //     })
+        // })
         socketConnection.on('user-unauthorized', data => {
             wobblyButton.logout()
         })
@@ -201,11 +233,12 @@ window.wobblyButton = {
         wobblyButton.user.token = null
         chrome.browserAction.setIcon({path: "images/favicon_g.png"})
         chrome.runtime.sendMessage({type: 'user-token', data: false})
-        // chrome.storage.sync.clear()
-        chrome.storage.sync.remove(['token'])
+        // wobblyButton.activeNotificationTimer = null
+        chrome.storage.sync.remove(['token', 'unauthTimerStart'])
         socketConnection.close()
         socketConnection.emit('leave')
         chrome.contextMenus.removeAll()
+        wobblyButton.getBrowserNotificationsInfo()
     },
     checkTabForPermissions: function(url){
         if (!wobblyButton.origins) return false
@@ -268,6 +301,23 @@ window.wobblyButton = {
             issue: encodeURI(data.selectionText),
             projectId: wobblyButton.defaultProject,
         })
+    },
+    editTask: function(data){
+        wobblyButton.apiCall(`${AppConfig.apiURL}timer/${data.taskId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                issue: data.issue,
+                projectId: data.projectId
+            }),
+        }).then((response) => {
+            wobblyButton.getUserHistory().then((res) => {
+                chrome.runtime.sendMessage({type: 'timer-history', data: res})
+            })
+        },
+        (error) => console.log(error))
     }
 }
 
@@ -279,6 +329,7 @@ chrome.storage.sync.get(['customIntegrations', 'originIntegrations'], res => {
         wobblyButton.originHostList = res.originIntegrations || []
         wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
 })
+
 let restartNotificationTimer = () => {
     clearTimeout(wobblyButton.activeNotificationTimer)
     wobblyButton.activeNotificationTimer = null
@@ -288,9 +339,11 @@ let restartNotificationTimer = () => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.type === 'auth'){
         chrome.tabs.onUpdated.addListener(wobblyButton.wobblyLogin)
-        chrome.tabs.create({url: 'https://time.wobbly.me/login'})
+        chrome.tabs.create({url: 'https://try.wobbly.me/login'})
     }
     else if(request.type === 'wobbly-access'){
+        wobblyButton.activeNotificationTimer && clearTimeout(wobblyButton.activeNotificationTimer)
+        wobblyButton.activeNotificationTimer = null
         wobblyButton.userAuth = true
         wobblyButton.createContextMenu()
         wobblyButton.user.token = request.token
@@ -299,6 +352,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         localStorage.setItem('userToken',request.token)
         chrome.tabs.remove(sender.tab.id)
         wobblyButton.initSocketConnection()
+        wobblyButton.getBrowserNotificationsInfo()
     }
     else if(request.type === 'auth-check'){
         wobblyButton.userAuth = false
@@ -318,8 +372,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         socketConnection.emit('stop-timer-v2', {
             token: `Bearer ${wobblyButton.user.token}`
         })
+        wobblyButton.getUserHistory()
     }
-    else if(request.type === 'timer-history'){
+    else if(request.type === 'get-timer-history'){
         wobblyButton.getUserHistory().then((res) => {
             sendResponse({data: res})
         })
@@ -327,6 +382,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     else if(request.type === 'logout'){
         wobblyButton.logout()
+    }
+    else if(request.type === 'task-edit'){
+        wobblyButton.editTask(request.data)
     }
 })
 
@@ -340,7 +398,7 @@ chrome.storage.onChanged.addListener(function(changes) {
             wobblyButton.originHostList = changes.originIntegrations.newValue
             wobblyButton.origins = wobblyButton.customHostList.concat(wobblyButton.originHostList)
         }
-        else if(key === 'notificationInfo' && changes.notificationInfo.hasOwnProperty('newValue')){
+        else if(key === 'notificationInfo' && changes.notificationInfo.hasOwnProperty('newValue') && wobblyButton.userAuth){
             wobblyButton.notificationInfo = changes.notificationInfo.newValue
             clearTimeout(wobblyButton.activeNotificationTimer)
             wobblyButton.activeNotificationTimer = null

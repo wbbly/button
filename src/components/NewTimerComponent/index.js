@@ -15,7 +15,8 @@ class NewTimerComponent extends Component {
         taskValue: null,
         projectValue: null,
         timerFail: false,
-        wrapperRef: null
+        wrapperRef: null,
+        editedTaskID: null
     }
     handleChange = (event) => {
         this.setState({projectValue: event.target.value})
@@ -44,21 +45,31 @@ class NewTimerComponent extends Component {
             projectValue: event.target.textContent
         })
     }
-    startTimer = () => {
-        if(!this.state.taskValue || !this.state.selectedProject.name){
+    handleSubmit = () => {
+        const { taskValue, selectedProject, projectValue, editedTaskID } = this.state
+        if(!taskValue || !selectedProject.name){
             this.setState({timerFail: true})
             return
         }
-        else if(this.state.projectValue !== this.state.selectedProject.name){
+        else if(projectValue !== selectedProject.name){
             this.setState({timerFail: true})
             return
         }
         else {
-            browser.runtime.sendMessage({type: 'timer-start', data: {
-                project: this.state.selectedProject.id,
-                issue: encodeURI(this.state.taskValue)
-            }})
-            window.close()
+            if(editedTaskID){
+                browser.runtime.sendMessage({type: 'task-edit', data: {
+                    projectId: selectedProject.id,
+                    issue: encodeURI(taskValue),
+                    taskId: editedTaskID
+                }})
+                this.props.moveBack()
+            } else {
+                browser.runtime.sendMessage({type: 'timer-start', data: {
+                    project: selectedProject.id,
+                    issue: encodeURI(taskValue)
+                }})
+                window.close()
+            }
         }
     }
     setWrapperRef = (node) => {
@@ -70,15 +81,29 @@ class NewTimerComponent extends Component {
             this.setState({showProjectList: false})
         }
     }
+
     componentDidMount() {
         document.addEventListener('mousedown', this.handleClickOutside);
+        const { editedTask } = this.props
+        if (editedTask) {
+            const { issue, project, id } = editedTask
+            this.setState({
+                taskValue: decodeURI(issue),
+                projectValue: project.name,
+                selectedProject:{
+                    name: project.name,
+                    id: project.id
+                },
+                editedTaskID: id
+            })
+        }
     }
     
     componentWillUnmount() {
         document.removeEventListener('mousedown', this.handleClickOutside);
     }
     render(){
-        const { showProjectList, projectList, selectedProject, taskValue, projectValue, timerFail } = this.state
+        const { showProjectList, projectList, selectedProject, taskValue, projectValue, timerFail, editedTaskID } = this.state
         return(
             <div className="project-form">
                 <div className="move-back"onClick={this.props.moveBack}>
@@ -90,7 +115,8 @@ class NewTimerComponent extends Component {
                     type="text" 
                     placeholder="Enter your task name"
                     className="task-input"
-                    style={timerFail && !taskValue ? {borderColor: "red"} : {borderColor: "white"}} 
+                    style={timerFail && !taskValue ? {borderColor: "red"} : {borderColor: "white"}}
+                    value={taskValue}
                     onChange={(e) => this.setState({taskValue: e.target.value, timerFail: false})}
                 />
                 <p>Project</p>
@@ -115,7 +141,7 @@ class NewTimerComponent extends Component {
                     </Scrollbars>
                 </ul>}
                 </div>
-                <button onClick={this.startTimer}>Start timer</button>
+                    <button onClick={this.handleSubmit}> {editedTaskID ? 'Edit task' : 'Start timer'}</button>
             </div>
         )
     }

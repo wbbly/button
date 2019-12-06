@@ -1,12 +1,12 @@
 export default {
     'atlassian.com': {
         url: '*://*.atlassian.com/*',
-        name: 'Atlassian / Jira',
+        name: 'Atlassian.com / Jira',
         file: 'jira.js',
     },
     'atlassian.net': {
         url: '*://*.atlassian.net/*',
-        name: 'Atlassian / Jira',
+        name: 'Atlassian.net / Jira',
         file: 'jira.js',
     },
     'jira.com': {

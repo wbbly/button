@@ -13,7 +13,7 @@
 }
 .projects-history ul {
     list-style: none;
-    padding: 0;
+    padding: 0 0 0 12px;
     background: #4f4f4f;
 }
 .projects-history li {
@@ -23,15 +23,35 @@
     justify-content: space-between;
     box-sizing: border-box;
     font-size: 1.3rem;
-    padding: 2px 12px;
+    padding: 2px 12px 2px 0;
     align-items: center;
     cursor: default;
 }
 .projects-history li .task-name {
     width: 75%;
+    display: flex;
+    align-items: center;
+}
+.edit-button {
+    position: absolute;
+    left: -24px;
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+.img-visible {
+    left: 0;
+}
+.projects-history li .task-name .task-moved {
+    padding-left: 24px;
+}
+.projects-history li .task-name span {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    font-weight: normal;
+    line-height: 40px;
+    padding-left: 0;
+    transition: all 0.5s ease;
 }
 .projects-history .task-controls {
     display: flex;
