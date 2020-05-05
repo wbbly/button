@@ -14,17 +14,17 @@ class SettingsPage extends Component {
   };
   componentWillMount() {
     document.body.style.backgroundColor = "white";
-    browser.storage.sync.get(["customIntegrations"]).then(res => {
+    browser.storage.local.get(["customIntegrations"]).then(res => {
       if (res.customIntegrations && res.customIntegrations.length !== 0) {
         this.setState({ activeIntegrations: res.customIntegrations });
       }
     });
-    browser.storage.sync.get(["originIntegrations"]).then(res => {
+    browser.storage.local.get(["originIntegrations"]).then(res => {
       if (res.originIntegrations && res.originIntegrations.length !== 0) {
         this.setState({ originIntegrations: res.originIntegrations });
       }
     });
-    browser.storage.sync.get(["notificationInfo"]).then(res => {
+    browser.storage.local.get(["notificationInfo"]).then(res => {
       if (res.notificationInfo) {
         this.setState({ notificationInfo: res.notificationInfo });
       }
@@ -69,7 +69,7 @@ class SettingsPage extends Component {
     if (!activeIntegrations && this.validateHost(host)) {
       browser.permissions.request({ origins: [`*://${host}/*`] }).then(res => {
         if (res) {
-          browser.storage.sync.set({
+          browser.storage.local.set({
             customIntegrations: [{ integration, host: host }]
           });
           this.setState({ customHost: "" });
@@ -79,7 +79,7 @@ class SettingsPage extends Component {
       browser.permissions.request({ origins: [`*://${host}/*`] }).then(res => {
         if (res) {
           activeIntegrations.push({ integration, host: host });
-          browser.storage.sync.set({ customIntegrations: activeIntegrations });
+          browser.storage.local.set({ customIntegrations: activeIntegrations });
           this.setState({ customHost: "" });
         } else return;
       });
@@ -94,7 +94,7 @@ class SettingsPage extends Component {
         return false;
       }
     });
-    browser.storage.sync.set({ customIntegrations: filteredArr });
+    browser.storage.local.set({ customIntegrations: filteredArr });
   };
   validateHost = host => {
     const { activeIntegrations } = this.state;
@@ -140,7 +140,7 @@ class SettingsPage extends Component {
               integration: targetValue,
               host: targetValue
             });
-            browser.storage.sync.set({
+            browser.storage.local.set({
               originIntegrations: originIntegrations
             });
           } else return;
@@ -150,7 +150,7 @@ class SettingsPage extends Component {
       let filteredArr = originIntegrations.filter(
         item => item.host !== targetValue
       );
-      browser.storage.sync.set({ originIntegrations: filteredArr });
+      browser.storage.local.set({ originIntegrations: filteredArr });
     }
   };
   checkForActiveIntegration = integration => {
@@ -167,7 +167,7 @@ class SettingsPage extends Component {
     });
     browser.permissions.request({ origins: permissionsArr }).then(res => {
       if (res) {
-        browser.storage.sync.set({ originIntegrations: hostArr });
+        browser.storage.local.set({ originIntegrations: hostArr });
       } else return;
     });
   };
@@ -179,7 +179,7 @@ class SettingsPage extends Component {
         permissionsArr.push(originHosts[item.host].url);
       });
       browser.permissions.remove({ origins: permissionsArr });
-      browser.storage.sync.set({ originIntegrations: [] });
+      browser.storage.local.set({ originIntegrations: [] });
     }
   };
   render() {

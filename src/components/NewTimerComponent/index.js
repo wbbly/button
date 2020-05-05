@@ -85,6 +85,7 @@ class NewTimerComponent extends Component {
     componentDidMount() {
         document.addEventListener('mousedown', this.handleClickOutside);
         const { editedTask } = this.props
+        this.setState({projectList: this.props.projectsList})
         if (editedTask) {
             const { issue, project, id } = editedTask
             this.setState({
@@ -98,7 +99,6 @@ class NewTimerComponent extends Component {
             })
         }
     }
-    
     componentWillUnmount() {
         document.removeEventListener('mousedown', this.handleClickOutside);
     }

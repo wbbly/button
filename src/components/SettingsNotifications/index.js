@@ -85,7 +85,7 @@ class SettingsNotifications extends Component {
         },
         isShowed
       };
-      browser.storage.sync.set({ notificationInfo });
+      browser.storage.local.set({ notificationInfo });
       if(allowNotifications) {
         alert("Reminder added");
       }

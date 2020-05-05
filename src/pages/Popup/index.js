@@ -23,12 +23,12 @@ class Popup extends Component {
     }
     
     componentWillMount(){
-        browser.storage.sync.get(['token']).then((res) => {
+        browser.storage.local.get(['token']).then((res) => {
                 if (res.token){
                     this.setState({isAuth: true})
                 }
         })
-        browser.storage.sync.get(['currentTimer']).then((res) => {
+        browser.storage.local.get(['currentTimer']).then((res) => {
             if (res.currentTimer){
                 this.setState({currentTimer: res.currentTimer})
                 this.getCurrentTimerDuration()
@@ -38,7 +38,7 @@ class Popup extends Component {
                 this.setState({currentTimer: null})
             }
         })
-        browser.storage.sync.get(['projects']).then((res) => {
+        browser.storage.local.get(['projects']).then((res) => {
             if (res.projects){
                 this.setState({projectsList: res.projects})
             }
