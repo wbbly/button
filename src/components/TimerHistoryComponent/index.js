@@ -9,6 +9,7 @@ import playSVG from '../../images/icons/play.svg'
 import editSVG from '../../images/icons/baseline-create-24px.svg'
 import { timerDuration } from '../../service/timeServises'
 import NewTimerComponent from '../NewTimerComponent';
+import timerSVG from '../../images/timer.svg'
 
 class TimerHistoryComponent extends Component{
     state = {
@@ -18,10 +19,14 @@ class TimerHistoryComponent extends Component{
         editedTask: null
     }
     componentWillMount(){
-        this.splitProjectsByDates(this.props.timerHistory)
+        if(this.props.timerHistory && !!this.props.timerHistory.length) {
+            this.splitProjectsByDates(this.props.timerHistory)
+        }
     }
     componentWillReceiveProps(nextProps){
-        this.splitProjectsByDates(nextProps.timerHistory)
+        if(nextProps.timerHistory && !!nextProps.timerHistory.length) {
+            this.splitProjectsByDates(nextProps.timerHistory)
+        }
     }
     splitProjectsByDates(items = []) {
         const formattedLogsDates = [];
@@ -107,7 +112,7 @@ class TimerHistoryComponent extends Component{
         const { todayTimers, yesterdayTimers, triggerTaskComponent, editedTask } = this.state
         return(
             triggerTaskComponent ? <NewTimerComponent projectsList={this.props.projectsList} moveBack={() => this.setState({triggerTaskComponent: false, editedTask: null})} editedTask={editedTask}/> : 
-                (<div className="projects-history">
+                (this.props.timerHistory && !!this.props.timerHistory.length ? <div className="projects-history">
                     <div className="projects-container">
                         <p>Today: {todayTimers && timerDuration(this.getTotalTime(todayTimers))}</p>
                         <ul>
@@ -168,6 +173,11 @@ class TimerHistoryComponent extends Component{
                         </div>
                     )}
                     <button onClick={() => this.setState({triggerTaskComponent: true})}>Start new timer</button>
+                </div> : <div className="empty-timer-container">
+                    <img src={timerSVG} className="timer-logo"/>
+                    <p>Get ready to track time and boost your productivity!</p>
+                    <button onClick={() => this.setState({triggerTaskComponent: true})}>Start new timer</button>
+                    <p className="wobbly-link">See more on <span onClick={() => browser.tabs.create({url: 'https://wobbly.me'})}>Wobbly.me</span> </p>
                 </div>)
         )
     }

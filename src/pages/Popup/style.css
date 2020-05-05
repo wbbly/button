@@ -24,7 +24,13 @@ header {
 .header-login-popup {
     justify-content: center;
 }
-  
+.header-image-container {
+    display: flex;
+}
+.header-spinner {
+    width: 40px;
+    height: 40px;
+}
 .wrapper{
     display: flex;
     flex-direction: column;

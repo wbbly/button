@@ -132,7 +132,7 @@ window.wobblyButton = {
     },
     getUserHistory: function(){
         return new Promise((resolve) => {
-            wobblyButton.userAuth && wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list`, {
+            wobblyButton.userAuth && wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list?page=1&limit=50`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
