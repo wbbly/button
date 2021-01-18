@@ -115,7 +115,7 @@ window.wobblyButton = {
     },
     getProjectList: function(){
         return new Promise((resolve) => {
-            wobblyButton.apiCall(`${AppConfig.apiURL}project/list`, {
+            wobblyButton.apiCall(`${AppConfig.apiURL}project/list?withJiraProject=true&slugSync=jira`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
