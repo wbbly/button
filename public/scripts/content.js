@@ -105,11 +105,18 @@ window.wobblyButton = {
         formTaskInput.value = decodeURI(wobblyButton.issue)
         formImg.src = chrome.extension.getURL("images/logo.svg");
 
+        let connectedProject = wobblyButton.projectList.filter((item) => item.jira_project && item.jira_project.name === wobblyButton.project)[0]
+
         // wobblyButton.projectList.forEach((project) => {
         //     if(project.name.toLowerCase() === wobblyButton.project.toLowerCase()){
         //         formProjectInput.value = project.name
         //     }
         // })
+        if(connectedProject) {
+            formProjectInput.value = connectedProject.name
+            wobblyButton.projectID = connectedProject.id
+        }
+
         formClose.onclick = (e) => {
             document.body.removeChild(container)
             wobblyButton.formContainer = null
