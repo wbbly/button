@@ -137,7 +137,7 @@ class Popup extends Component {
                     <div className="wrapper">
                         <p className="current-timer"><span>Timer started:</span></p>
                         <div className="task-item">
-                            <p className="current-timer">{decodeURI(this.state.currentTimer.issue)} • {this.state.currentTimer.project.name}</p>
+                            <p className="current-timer">{this.state.currentTimer.issue} • {this.state.currentTimer.project.name}</p>
                             <div className="time-container">
                                 <p>{timerDuration(this.state.timer)}</p>
                                 <img src={stopSVG} onClick={this.stopTimer} />

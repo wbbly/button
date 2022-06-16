@@ -298,7 +298,7 @@ window.wobblyButton = {
     contextMenuClicked: function(data){
         socketConnection.emit('start-timer-v2', {
             token: `Bearer ${wobblyButton.user.token}`,
-            issue: encodeURI(data.selectionText),
+            issue: data.selectionText,
             projectId: wobblyButton.defaultProject,
         })
     },

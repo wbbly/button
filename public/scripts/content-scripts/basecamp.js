@@ -12,7 +12,7 @@ wobblyButton.renderButton('.todo__header:not(.wobbly)', function(elem){
     wobblyButton.project = searchElem('strong.u-position-context a').textContent
     wobblyButton.task = searchElem('.recording-breadcrumb__children span:last-child').textContent
     wobblyButton.detail = searchElem('h1.flush a',rootElement).textContent
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = searchElem('span.action-sheet')

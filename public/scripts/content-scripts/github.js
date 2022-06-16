@@ -5,7 +5,7 @@ wobblyButton.renderButton("#partial-discussion-sidebar", function(elem) {
   wobblyButton.project = searchElem("strong", searchElem("h1")).textContent;
   wobblyButton.task = searchElem(".gh-header-number").textContent;
   wobblyButton.detail = searchElem(".js-issue-title").textContent.trim();
-  wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`);
+  wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`;
 
   rootElement.classList.add("wobbly");
   let container = createTag("div", "discussion-sidebar-item wobbly-button");
@@ -45,9 +45,9 @@ wobblyButton.renderButton(".js-project-card-details", function(elem) {
     wobblyButton.project = project.textContent;
     wobblyButton.task = task.textContent;
     wobblyButton.detail = detail.textContent;
-    wobblyButton.issue = encodeURI(
+    wobblyButton.issue = 
       `${wobblyButton.task} ${wobblyButton.detail}`
-    );
+    ;
   }
 
   rootElement.classList.add("wobbly");

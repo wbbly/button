@@ -59,14 +59,14 @@ class NewTimerComponent extends Component {
             if(editedTaskID){
                 browser.runtime.sendMessage({type: 'task-edit', data: {
                     projectId: selectedProject.id,
-                    issue: encodeURI(taskValue),
+                    issue: taskValue,
                     taskId: editedTaskID
                 }})
                 this.props.moveBack()
             } else {
                 browser.runtime.sendMessage({type: 'timer-start', data: {
                     project: selectedProject.id,
-                    issue: encodeURI(taskValue)
+                    issue: taskValue
                 }})
                 window.close()
             }
@@ -89,7 +89,7 @@ class NewTimerComponent extends Component {
         if (editedTask) {
             const { issue, project, id } = editedTask
             this.setState({
-                taskValue: decodeURI(issue),
+                taskValue: issue,
                 projectValue: project.name,
                 selectedProject:{
                     name: project.name,

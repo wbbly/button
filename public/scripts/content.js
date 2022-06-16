@@ -76,7 +76,7 @@ window.wobblyButton = {
         chrome.runtime.sendMessage({type: 'timer-stop'})
     },
     checkCurrentTimer: function(){
-        if (wobblyButton.link && wobblyButton.activeTimer && wobblyButton.activeTimer.issue.indexOf(encodeURI(wobblyButton.task)) > -1){
+        if (wobblyButton.link && wobblyButton.activeTimer && wobblyButton.activeTimer.issue.indexOf(wobblyButton.task) > -1){
             wobblyButton.currentTimer = true
             wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL("images/favicon-active.svg")})`
             wobblyButton.link.textContent = wobblyButton.link.textContent ? "Stop timer" : ''
@@ -102,7 +102,7 @@ window.wobblyButton = {
         let formList = searchElem('.wobbly-projects-list', container)
         let formButton = searchElem('.wobbly-form-confirm', container)
 
-        formTaskInput.value = decodeURI(wobblyButton.issue)
+        formTaskInput.value = wobblyButton.issue
         formImg.src = chrome.extension.getURL("images/logo.svg");
 
         // wobblyButton.projectList.forEach((project) => {
@@ -125,7 +125,7 @@ window.wobblyButton = {
             if (!validateInputs()){
                 return
             }
-            wobblyButton.issue = encodeURI(formTaskInput.value)
+            wobblyButton.issue = formTaskInput.value
             wobblyButton.sendTimerData()
             wobblyButton.formContainer = null
             document.body.removeChild(container)
