@@ -45,7 +45,7 @@ wobblyButton.renderButton(".window-header:not(.wobbly)", elem => {
 
   wobblyButton.project = getProject();
   wobblyButton.task = getDescription();
-  wobblyButton.issue = encodeURI(wobblyButton.task);
+  wobblyButton.issue = wobblyButton.task;
 
   link.title = `${wobblyButton.task} - ${wobblyButton.project}`;
 

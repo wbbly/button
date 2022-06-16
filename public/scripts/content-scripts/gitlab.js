@@ -9,7 +9,7 @@ wobblyButton.renderButton('.issue-details .detail-page-description:not(.wobbly)'
     wobblyButton.project = searchElem('.breadcrumbs-list li:nth-last-child(3) .breadcrumb-item-text').textContent
     wobblyButton.task = searchElem('.breadcrumbs-list li:last-child .breadcrumbs-sub-title').textContent
     wobblyButton.detail = searchElem('.title', rootElement).textContent
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = searchElem('.detail-page-header-body')
@@ -37,7 +37,7 @@ wobblyButton.renderButton('.merge-request-details .detail-page-description:not(.
     wobblyButton.project = searchElem('.breadcrumbs-list li:nth-last-child(3) .breadcrumb-item-text').textContent
     wobblyButton.task = searchElem('.breadcrumbs-list li:last-child .breadcrumbs-sub-title').textContent
     wobblyButton.detail = searchElem('.title', rootElement).textContent
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = searchElem('.detail-page-header-body')

@@ -5,7 +5,7 @@ wobblyButton.renderButton('.issue-header-content:not(.wobbly)', function(elem){
     wobblyButton.project = searchElem('#project-name-val', rootElement).textContent
     wobblyButton.task = searchElem('#key-val').textContent
     wobblyButton.detail = searchElem('#summary-val', rootElement).textContent
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = createTag('li', 'wobbly-button')
@@ -32,7 +32,7 @@ wobblyButton.renderButton('.ghx-detail-head:not(.wobbly)', function(elem){
     wobblyButton.project = searchElem('.ghx-project', rootElement).textContent
     wobblyButton.task = searchElem('#issuekey-val', rootElement).textContent
     wobblyButton.detail = searchElem('#summary-val', rootElement).textContent
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = createTag('div', 'wobbly-button')
@@ -60,7 +60,7 @@ wobblyButton.renderButton('#ghx-detail-view [spacing] h1:not(.wobbly)', function
     let task = searchElem('[spacing] a', rootElement)
     wobblyButton.task = task.textContent
     let detail = searchElem('[spacing] h1', rootElement)
-    wobblyButton.issue = encodeURI(`${task.textContent} ${detail.textContent}`)
+    wobblyButton.issue = `${task.textContent} ${detail.textContent}`
 
     searchElem(elem).classList.add('wobbly')
     let container = createTag('div', 'wobbly-button')
@@ -88,7 +88,7 @@ wobblyButton.renderButton('div[class*="Droplist-"] + div a[href^="/browse/"]:not
     let detail = searchElem('h1 ~ button[aria-label]').previousSibling.textContent
     let task = searchElem(elem).textContent
     wobblyButton.task = task
-    wobblyButton.issue = encodeURI(`${task} ${detail}`)
+    wobblyButton.issue = `${task} ${detail}`
 
     searchElem(elem).id = 'wobbly'
     let parentContainer = createTag('div', 'wobbly-button')

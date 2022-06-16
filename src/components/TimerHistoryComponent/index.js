@@ -121,12 +121,12 @@ class TimerHistoryComponent extends Component{
                                                 onMouseOver={this.showEditButton}
                                                 onMouseOut={this.hideEditButton}
                                                 className="task-name"
-                                                title={`${decodeURI(item.issue)} • ${item.project.name}`}
+                                                title={`${item.issue} • ${item.project.name}`}
                                             >
                                                 <div className="edit-button">
                                                     <img src={editSVG} onClick={(e) => this.editSelectedTask(item)}/>
                                                 </div>
-                                                <span className="task-name-text">{decodeURI(item.issue)} • {item.project.name}</span></div>
+                                                <span className="task-name-text">{item.issue} • {item.project.name}</span></div>
                                             <div className="task-controls">
                                                  <div>{timerDuration(this.getTaskTime(item.start_datetime, item.end_datetime))}</div>
                                                  <img id={item.id} src={playSVG} onClick={this.startTimer}/>
@@ -151,12 +151,12 @@ class TimerHistoryComponent extends Component{
                                                 onMouseOver={this.showEditButton}
                                                 onMouseOut={this.hideEditButton}
                                                 className="task-name"
-                                                title={`${decodeURI(item.issue)} • ${item.project.name}`}
+                                                title={`${item.issue} • ${item.project.name}`}
                                             >
                                                 <div className="edit-button">
                                                     <img src={editSVG} onClick={(e) => this.editSelectedTask(item)}/>
                                                 </div>
-                                                <span className="task-name-text">{decodeURI(item.issue)} • {item.project.name}</span></div>
+                                                <span className="task-name-text">{item.issue} • {item.project.name}</span></div>
                                             <div className="task-controls">
                                                 <div>{timerDuration(this.getTaskTime(item.start_datetime, item.end_datetime))}</div>
                                                 <img id={item.id} src={playSVG} onClick={this.startTimer}/>
