@@ -5,7 +5,9 @@
     align-items: center !important;
     background-color: #333 !important;
     border-radius: 5px !important;
-    position: absolute !important;
+    position: fixed !important;
+    right: 3vw !important;
+    top: 3vh !important;
     z-index: 9999 !important;
 }
 .wobbly-form-header{

@@ -9,7 +9,7 @@ wobblyButton.renderButton('.SingleTaskPane-titleRow:not(.wobbly)', function(elem
     wobblyButton.project = searchElem('.TopbarPageHeaderStructure-title').textContent
     wobblyButton.task = searchElem('.simpleTextarea', rootElement).textContent
     wobblyButton.detail = ''
-    wobblyButton.issue = encodeURI(`${wobblyButton.task} ${wobblyButton.detail}`)
+    wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`
 
     rootElement.classList.add('wobbly')
     let container = searchElem('.SingleTaskPaneToolbar-leftItems')

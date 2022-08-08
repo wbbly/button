@@ -132,7 +132,7 @@ window.wobblyButton = {
     },
     getUserHistory: function(){
         return new Promise((resolve) => {
-            wobblyButton.userAuth && wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list`, {
+            wobblyButton.userAuth && wobblyButton.apiCall(`${AppConfig.apiURL}timer/user-list?page=1&limit=50`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ window.wobblyButton = {
     contextMenuClicked: function(data){
         socketConnection.emit('start-timer-v2', {
             token: `Bearer ${wobblyButton.user.token}`,
-            issue: encodeURI(data.selectionText),
+            issue: data.selectionText,
             projectId: wobblyButton.defaultProject,
         })
     },
