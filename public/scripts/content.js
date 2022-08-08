@@ -54,11 +54,11 @@ window.wobblyButton = {
         renderer(element)
         observer.observe(document, {childList: true, subtree: true})
     },
-    timerStart: function(){
+    timerStart: function(issue){
         if(wobblyButton.formContainer){
             return
         }
-        wobblyButton.initFormContainer()
+        wobblyButton.initFormContainer(issue)
         
     },
     sendTimerData: function(){
@@ -84,17 +84,13 @@ window.wobblyButton = {
             wobblyButton.currentTimer = false
         }
     },
-    initFormContainer: function(){
+    initFormContainer: function(issue){
         let container = createTag('div', 'wobbly-form-container')
         document.body.appendChild(container)
         let linkPosition = wobblyButton.link.getBoundingClientRect() 
         wobblyButton.formContainer = container
         container.innerHTML = wobblyButton.formElement
-        let xPosition = window.innerWidth - linkPosition.left < 350 ? 'right: 0px;': `left: ${linkPosition.left}px;` 
-        container.style = `
-            top: ${linkPosition.top}px;
-            ${xPosition}
-        `
+       
         let formTaskInput = searchElem('.task-input', container)
         let formProjectInput = searchElem('.project-input', container)
         let formClose = searchElem('.wobbly-form-exit', container)
@@ -102,7 +98,7 @@ window.wobblyButton = {
         let formList = searchElem('.wobbly-projects-list', container)
         let formButton = searchElem('.wobbly-form-confirm', container)
 
-        formTaskInput.value = wobblyButton.issue
+        formTaskInput.value = issue || wobblyButton.issue
         formImg.src = chrome.extension.getURL("images/logo.svg");
 
         // wobblyButton.projectList.forEach((project) => {
