@@ -146,7 +146,7 @@ class Popup extends Component {
                     </div>
                     : 
                     <div className="wrapper">
-                        {this.state.timerHistory && <TimerHistoryComponent timerHistory={this.state.timerHistory} projectsList={this.state.projectsList}/>}
+                        {<TimerHistoryComponent timerHistory={this.state.timerHistory} projectsList={this.state.projectsList}/>}
                     </div>
                     
                 }
