@@ -12,7 +12,7 @@ wobblyButton.renderButton("#docs-bars:not(.wobbly)", (elem) => {
     const title = searchElem(".docs-title-input");
     return title ? title.value : "";
   };
- 
+
   let link = createTag("a", "wobbly", "Start timer");
   link.style = `
             cursor: pointer;
