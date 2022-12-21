@@ -49,4 +49,9 @@ export default {
     name: "Google Docs",
     file: "google-docs.js",
   },
+  "force.com": {
+    url: "*://*.force.com/*,*://*.lightning.force.com/*",
+    name: "Salesforce Lightning",
+    file: "force.js",
+  },
 };
