@@ -47,7 +47,7 @@
     "react": "^16.8.6",
     "react-app-polyfill": "^1.0.1",
     "react-custom-scrollbars": "^4.2.1",
-    "react-dev-utils": "^9.0.1",
+    "react-dev-utils": "^12.0.1",
     "react-dom": "^16.8.6",
     "resolve": "1.10.0",
     "rimraf": "^2.6.3",
@@ -60,7 +60,7 @@
     "url-loader": "1.1.2",
     "webextension-polyfill": "^0.4.0",
     "webpack": "4.29.6",
-    "webpack-cli": "^3.3.6",
+    "webpack-cli": "^3.3.12",
     "webpack-dev-server": "3.2.1",
     "webpack-manifest-plugin": "2.0.4",
     "workbox-webpack-plugin": "4.2.0"
