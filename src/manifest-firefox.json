@@ -6,7 +6,7 @@
     }
   },
   "name": "Wobbly Button",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "manifest_version": 2,
   "permissions": [
     "tabs",
@@ -14,7 +14,7 @@
     "*://*.wobbly.me/*",
     "storage",
     "contextMenus"
-    
+
  ],
   "optional_permissions": [
     "*://*/"
@@ -26,10 +26,10 @@
     "images/*.svg",
     "images/*.png"
   ],
-  "icons": { 
+  "icons": {
     "16": "images/favicon.png",
     "48": "images/Wobbly_logo_48.png",
-   "128": "images/Wobbly_logo_128.png" 
+   "128": "images/Wobbly_logo_128.png"
   },
   "browser_action": {
       "default_popup": "index.html"
