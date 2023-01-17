@@ -42,7 +42,6 @@ wobblyButton.renderButton('.issue-details .detail-page-description', function(el
     wobblyButton.link = link;
     if(link) {
         const firstLink = container.getElementsByClassName('wobbly');
-        console.log(firstLink[0], '123');
         firstLink[0].style = `display: none;`;
     }
 })
