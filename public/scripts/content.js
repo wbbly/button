@@ -46,12 +46,9 @@ window.wobblyButton = {
       if (debounce) {
         clearTimeout(debounce);
       }
-      debounce = setTimeout(() => {
-        renderer(element);
-        wobblyButton.checkCurrentTimer();
-      }, 500);
     });
     renderer(element);
+    wobblyButton.checkCurrentTimer();
     observer.observe(document, { childList: true, subtree: true });
   },
   timerStart: function (issue) {
@@ -80,16 +77,17 @@ window.wobblyButton = {
   checkCurrentTimer: function () {
     if (
       wobblyButton.link &&
-      wobblyButton.activeTimer &&
-      wobblyButton.activeTimer.issue.indexOf(wobblyButton.task) > -1
+      wobblyButton.activeTimer
     ) {
-      wobblyButton.currentTimer = true;
-      wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL(
-        "images/favicon-active.svg"
-      )})`;
-      wobblyButton.link.textContent = wobblyButton.link.textContent
-        ? "Stop timer"
-        : "";
+      if(wobblyButton.activeTimer.issue || !wobblyButton.activeTimer.issue) {
+        wobblyButton.currentTimer = true;
+        wobblyButton.link.style.backgroundImage = `url(${chrome.extension.getURL(
+            "images/favicon-active.svg"
+        )})`;
+        wobblyButton.link.textContent = wobblyButton.link.textContent
+            ? "Stop timer"
+            : "";
+      }
     } else {
       wobblyButton.currentTimer = false;
     }
