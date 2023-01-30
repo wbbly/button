@@ -4,13 +4,19 @@ wobblyButton.renderButton("#partial-discussion-sidebar", function(elem) {
 
   rootElement.classList.add("wobbly");
 
+  const getIdTask = () => {
+    const idTask = searchElem('.gh-header-number');
+    return idTask ? idTask.textContent : "";
+  }
+
   const getTitleText = () => {
-    const title = searchElem('js-issue-title');
+    const title = searchElem('.js-issue-title');
     return title ? title.textContent.trim() : "";
   };
 
-  wobblyButton.task = getTitleText();
-  wobblyButton.issue = wobblyButton.task;
+  wobblyButton.detail = getTitleText()
+  wobblyButton.task = getIdTask;
+  wobblyButton.issue = `${wobblyButton.task} ${wobblyButton.detail}`;
 
   let container = createTag("div", "discussion-sidebar-item wobbly-button");
   let link = createTag("a", "wobbly", "Start timer");
@@ -23,9 +29,9 @@ wobblyButton.renderButton("#partial-discussion-sidebar", function(elem) {
   link.onclick = () => {
     wobblyButton.currentTimer
         ? wobblyButton.timerStop()
-        : wobblyButton.timerStart(getTitleText());
+        : wobblyButton.timerStart(`${getIdTask()} ${getTitleText()}`);
   }
-  link.title = getTitleText();
+  link.title = `${getIdTask()} ${getTitleText()}`;
 
   wobblyButton.link = link;
 
