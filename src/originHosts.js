@@ -46,7 +46,7 @@ export default {
   },
   "docs.google.com": {
     url: "*://*.docs.google.com/*",
-    name: "Google Docs",
+    name: "Google Docs / Sheets ",
     file: "google-docs.js",
   },
   "force.com": {
